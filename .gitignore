@@ -1,4 +1,14 @@
+# Python
+__pycache__/
+*/__pycache__/
+*.py[cod]
+
+# 仮想環境
+venv/
+ENV/
+
+# 環境変数
 .env
-./__pycache__
-./__pycache__/*
-./venv/*
+
+# OS
+.DS_Store
