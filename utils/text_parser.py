@@ -1,16 +1,20 @@
 """
 テキスト解析モジュール
-タスク情報の抽出と解析を行う機能を提供
+ルールベースとAI推論を組み合わせたハイブリッド解析
 """
 
 import re
 from datetime import datetime, timedelta
 import calendar
+from typing import Dict, Any, Optional
+from models.ai.inference import AIInference
 
 class TextParser:
     """
     テキスト解析クラス
-    
+    第1層（ルールベース）と第2層（AI）を組み合わせて
+    高精度な情報抽出を行う
+
     タスクの説明文から以下の情報を抽出:
     - タイトル
     - 期限
@@ -21,7 +25,7 @@ class TextParser:
     自然言語の両方に対応
     """
     
-    def __init__(self):
+    def __init__(self, model_paths: Optional[Dict[str, str]] = None):
         # カテゴリーのキーワードマッピング
         self.category_keywords = {
             "数学": ["計算", "数式", "証明", "微分", "積分", "代数", "幾何"],
@@ -38,9 +42,18 @@ class TextParser:
             "低": ["余裕", "時間がある", "ゆっくり"]
         }
 
-    def parse_task_info(self, text):
+        # AI推論ベースの初期化
+        self.ai_inference = None
+        if model_paths:
+            try:
+                self.ai_inference = AIInference(model_paths)
+            except Exception as e:
+                print(f"警告: AI推論ベースの初期化に失敗しました: {e}")
+                print("ルールベースのみで動作します")
+
+    def parse_task_info(self, text: str) -> Dict[str, Any]:
         """
-        テキストからタスク情報を抽出
+        テキストからタスク情報を抽出（ハイブリッドアプローチ）
         
         Args:
             text (str): 解析対象のテキスト
@@ -55,20 +68,82 @@ class TextParser:
         if not task_info:
             return None
             
-        # 基本情報の初期化
-        result = {
-            "title": None,
-            "due_date": None,
-            "priority": None,
-            "category": None
-        }
-        
-        # 明示的なフォーマット（"|" 区切り）のパース
+       # 1. ルールベースによる解析
+        rule_based_result = None
         if "|" in task_info:
+            # フォーマット済みテキストの場合は従来通りの処理
             return self._parse_formatted_text(task_info)
+        else:
+            # 自然言語の場合はハイブリッド解析
+            rule_based_result = self._parse_natural_text(task_info)
+
+        # 2. AI推論による解析（利用可能な場合）
+        ai_result = None
+        if self.ai_inference and not "|" in task_info:
+            try:
+                ai_result = self.ai_inference.analyze_text(task_info)
+            except Exception as e:
+                print(f"AI推論中にエラーが発生しました: {e}")
             
-        # 自然言語からの解析
-        return self._parse_natural_text(task_info)
+        # 3. 結果の統合
+        return self._integrate_results(rule_based_result, ai_result, task_info)
+    
+    def _integrate_results(
+        self,
+        rule_based: Dict[str, Any],
+        ai_result: Optional[Dict[str, Any]],
+        original_text: str
+    ) -> Dict[str, Any]:
+        """
+        ルールベースとAI推論ベースの結果を統合
+        
+        Args:
+            rule_based (Dict[str, Any]): ルールベースの結果
+            ai_result (Optional[Dict[str, Any]]): AI推論ベースの結果
+            original_text (str): 元のテキスト
+            
+        Returns:
+            Dict[str, Any]: 統合された結果
+        """
+        # AI結果が利用できない場合はルールベースの結果をそのまま返す
+        if not ai_result:
+            return rule_based
+        
+        result = {}
+        
+        # タイトルの設定（ルールベースを優先）
+        result["title"] = rule_based["title"]
+        
+        # 期限の統合
+        if rule_based["due_date"]:
+            result["due_date"] = rule_based["due_date"]
+        elif ai_result["deadline"]["estimated_days"]:
+            estimated_date = datetime.now() + timedelta(days=ai_result["deadline"]["estimated_days"])
+            result["due_date"] = estimated_date.strftime('%Y-%m-%d')
+        else:
+            result["due_date"] = None
+        
+        # 優先度の統合（ルールベースとAIの信頼度を比較）
+        rule_based_priority = rule_based.get("priority")
+        ai_priority = ai_result["priority"]["level"]
+        ai_confidence = ai_result["priority"]["confidence"]
+        
+        if rule_based_priority:
+            result["priority"] = rule_based_priority
+        elif ai_confidence > 0.7:  # 高信頼度の場合のみAIの結果を採用
+            result["priority"] = ai_priority
+        else:
+            result["priority"] = "中"  # デフォルト
+        
+        # カテゴリの統合
+        if rule_based["category"]:
+            result["category"] = rule_based["category"]
+        elif ai_result["category"]["confidence"] > 0.8:  # 高信頼度の場合のみ
+            result["category"] = ai_result["category"]["name"]
+        else:
+            result["category"] = None
+        
+        return result
 
     def _parse_formatted_text(self, text):
         """
@@ -83,9 +158,18 @@ class TextParser:
         """
         result = {
             "title": None,
-            "due_date": None,
-            "priority": None,
-            "category": None
+            "due_date": {
+                "value": None,
+                "confidence": 0.0
+            },
+            "priority": {
+                "value": None,
+                "confidence": 0.0
+            },
+            "category": {
+                "value": None,
+                "confidence": 0.0
+            }
         }
         
         components = text.split("|")
@@ -94,11 +178,14 @@ class TextParser:
         for comp in components[1:]:
             comp = comp.strip()
             if "期限:" in comp:
-                result["due_date"] = self._parse_date(comp.split("期限:")[1].strip())
+                date_value = self._parse_date(comp.split("期限:")[1].strip())
+                result["due_date"] = {"value": date_value, "confidence": 1.0}
             elif "優先度:" in comp:
-                result["priority"] = comp.split("優先度:")[1].strip()
+                priority_value = comp.split("優先度:")[1].strip()
+                result["priority"] = {"value": priority_value, "confidence": 1.0}
             elif "分野:" in comp:
-                result["category"] = comp.split("分野:")[1].strip()
+                category_value = comp.split("分野:")[1].strip()
+                result["category"] = {"value": category_value, "confidence": 1.0}
                 
         return result
 
@@ -116,9 +203,18 @@ class TextParser:
         """
         result = {
             "title": None,
-            "due_date": None,
-            "priority": None,
-            "category": None
+            "due_date": {
+                "value": None,
+                "confidence": 0.0
+            },
+            "priority": {
+                "value": None,
+                "confidence": 0.0
+            },
+            "category": {
+                "value": None,
+                "confidence": 0.0
+            }
         }
 
         original_text = text
@@ -126,20 +222,29 @@ class TextParser:
         # 日付の抽出
         date_info = self._extract_date(text)
         if date_info:
-            result["due_date"] = date_info["date"]
+            result["due_date"] = {
+                "value": date_info["date"],
+                "confidence": 1.0 if "期限" in text or "締切" in text else 0.8
+            }
             # 日付部分を除去
             text = date_info["remaining_text"]
         
         # カテゴリの抽出
         category_info = self._extract_category(text)
         if category_info:
-            result["category"] = category_info["category"]
+            result["category"] = {
+                "value": category_info["category"],
+                "confidence": 1.0 if category_info["category"] in text else 0.9
+            }
             text = category_info["remaining_text"]
         
         # 優先度の抽出
         priority_info = self._extract_priority(original_text)
         if priority_info:
-            result["priority"] = priority_info["priority"]
+            result["priority"] = {
+                "value": priority_info["priority"],
+                "confidence": 1.0 if any(kw in text for kw in self.priority_keywords[priority_info["priority"]]) else 0.8
+            }
             text = priority_info["remaining_text"]
         
         # タイトル生成のための前処理
@@ -147,13 +252,13 @@ class TextParser:
         text = self._clean_title_text(text)
         
         # カテゴリを考慮したタイトル生成
-        if result["category"]:
+        if result["category"]["value"]:
             # カテゴリ名が既にテキストに含まれている場合はそのまま
-            if result["category"] in text:
+            if result["category"]["value"] in text:
                 result["title"] = text
             else:
                 # カテゴリ名を先頭に追加
-                result["title"] = f"{result['category']}の{text}"
+                result["title"] = f"{result['category']['value']}の{text}"
         else:
             result["title"] = text
         
@@ -216,7 +321,11 @@ class TextParser:
             text (str): 日付を含むテキスト
             
         Returns:
-            dict: 抽出された日付と残りのテキスト
+            dict: {
+                "date": 抽出された日付,
+                "remaining_text": 残りのテキスト,
+                "confidence": 確信度（0-1）
+            }
             None: 日付が見つからない場合
         """
 
@@ -281,7 +390,12 @@ class TextParser:
                         # グループがある場合はそれを使用、ない場合は全体を使用
                         date_str = date_func(date_match)
                         remaining_text = text[:match.start()] + text[match.end():]
-                        return {"date": date_str, "remaining_text": remaining_text.strip()}
+                        # 期限表現がある場合は高信頼度
+                        return {
+                            "date": date_str,
+                            "remaining_text": remaining_text.strip(),
+                            "confidence": 1.0
+                        }
                     except (ValueError, AttributeError) as e:
                         print(f"日付処理エラー: {e}")
                         continue
@@ -293,7 +407,12 @@ class TextParser:
                 try:
                     date_str = date_func(match)
                     remaining_text = text[:match.start()] + text[match.end():]
-                    return {"date": date_str, "remaining_text": remaining_text.strip()}
+                    # 期限表現がない場合は低めの信頼度
+                    return {
+                        "date": date_str,
+                        "remaining_text": remaining_text.strip(),
+                        "confidence": 0.8
+                    }
                 except (ValueError, AttributeError) as e:
                     print(f"日付処理エラー: {e}")
                     continue
@@ -339,7 +458,11 @@ class TextParser:
             text (str): カテゴリを含むテキスト
             
         Returns:
-            dict: 抽出されたカテゴリと残りのテキスト
+            dict: {
+                "category": 抽出されたカテゴリ,
+                "remaining_text": 残りのテキスト,
+                "confidence": 確信度（0-1）
+            }
             None: カテゴリが見つからない場合
         """
         # 直接カテゴリ名がある場合
@@ -347,18 +470,30 @@ class TextParser:
             if category in text:
                 return {
                     "category": category,
-                    "remaining_text": text.replace(category, "")
+                    "remaining_text": text.replace(category, ""),
+                    "confidence": 1.0  # 完全一致は最高信頼度
                 }
         
         # キーワードからカテゴリを推測
+        matched_keywords = {}
         for category, keywords in self.category_keywords.items():
             for keyword in keywords:
                 if keyword in text:
-                    return {
-                        "category": category,
-                        "remaining_text": text.replace(keyword, "")
-                    }
+                    if category not in matched_keywords:
+                        matched_keywords[category] = 0
+                    matched_keywords[category] += 1
         
+        if not matched_keywords:
+            # 最も多くのキーワードにマッチしたカテゴリを選択
+            best_category = max(matched_keywords.items(), key=lambda x: x[1])[0]
+            keyword_count = matched_keywords[best_category]
+            # キーワードの数に応じて信頼度を調整
+            confidence = min(0.8 + (keyword_count - 1) * 0.1, 0.9)  # 最大0.9
+            return {
+                "category": best_category,
+                "remaining_text": text,
+                "confidence": confidence
+            }
         return None
 
     def _extract_priority(self, text):
@@ -372,7 +507,11 @@ class TextParser:
             text (str): 優先度を含むテキスト
             
         Returns:
-            dict: 抽出された優先度と残りのテキスト
+        dict: {
+                "priority": 優先度,
+                "remaining_text": 残りのテキスト,
+                "confidence": 確信度（0-1）
+            }
             None: 優先度が見つからない場合
         """
         print(f"\n=== 優先度抽出開始 ===")
@@ -381,17 +520,22 @@ class TextParser:
         original_text = text
         priority_from_keyword = None
         
-        # 直接的な優先度表現を最初にチェック
+        # キーワードによる優先度判定
         for priority, keywords in self.priority_keywords.items():
+            matched_keywords = []
             for keyword in keywords:
                 if keyword in text:
-                    priority_from_keyword = {
-                        "priority": priority,
-                        "remaining_text": text.replace(keyword, "")
-                    }
-                    print(f"キーワード '{keyword}' が見つかりました → 優先度: {priority}")
-                    break
-            if priority_from_keyword:
+                    matched_keywords.append(keyword)
+            
+            if matched_keywords:
+                confidence = min(0.8 + (len(matched_keywords) - 1) * 0.1, 1.0)  # キーワード数による信頼度調整
+                priority_from_keyword = {
+                    "priority": priority,
+                    "remaining_text": text,
+                    "confidence": confidence
+                }
+                for kw in matched_keywords:
+                    print(f"キーワード '{kw}' が見つかりました → 優先度: {priority}")
                 break
         
         # 期限による優先度推測
@@ -409,24 +553,39 @@ class TextParser:
                 print(f"今日: {today.date()}")
                 print(f"期限までの日数: {days_until_deadline}日")
                 
-                # キーワードによる優先度がある場合はそれを優先
-                if priority_from_keyword:
-                    print("キーワードによる優先度が存在するため、それを優先します")
+                 # キーワードによる優先度がある場合はその信頼度を考慮
+                if priority_from_keyword and priority_from_keyword["confidence"] > 0.8:
                     return priority_from_keyword
                     
                 # 期限に基づく優先度の判定
-                if days_until_deadline < 0:  # 期限切れ
-                    print("期限切れ → 高優先度")
-                    return {"priority": "高", "remaining_text": original_text}
-                elif days_until_deadline <= 1:  # 今日または明日
-                    print("1日以内 → 高優先度")
-                    return {"priority": "高", "remaining_text": original_text}
-                elif days_until_deadline <= 7:  # 1週間以内
-                    print("7日以内 → 高優先度")
-                    return {"priority": "高", "remaining_text": original_text}
-                else:  # 1週間以上
-                    print("7日超 → 中優先度")
-                    return {"priority": "中", "remaining_text": original_text}
+                # 期限切れ
+                if days_until_deadline < 0:
+                    return {
+                        "priority": "高",
+                        "remaining_text": original_text,
+                        "confidence": 0.9
+                    }
+                # 今日または明日
+                elif days_until_deadline <= 1:
+                    return {
+                        "priority": "高",
+                        "remaining_text": original_text,
+                        "confidence": 0.9
+                    }
+                # 1週間以内
+                elif days_until_deadline <= 7:
+                    return {
+                        "priority": "高",
+                        "remaining_text": original_text,
+                        "confidence": 0.85
+                    }
+                # 1週間以上
+                else:
+                    return {
+                        "priority": "中",
+                        "remaining_text": original_text,
+                        "confidence": 0.7
+                    }
             except ValueError as e:
                 print(f"日付処理エラー: {e}")
                 if priority_from_keyword:
@@ -440,7 +599,12 @@ class TextParser:
             return priority_from_keyword
         
         print("デフォルトの優先度（低）を設定")
-        return {"priority": "低", "remaining_text": original_text}  # デフォルトを低に設定
+        # デフォルト値
+        return {
+            "priority": "低",
+            "remaining_text": original_text,
+            "confidence": 0.5  # デフォルトは低信頼度
+        }
     
     @staticmethod
     def _parse_date(date_str):
