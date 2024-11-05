@@ -13,6 +13,7 @@ from datetime import datetime
 import random
 from typing import List, Dict, Any
 import logging
+import calendar
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -30,12 +31,31 @@ class DataManager:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.data_dir = os.path.join(project_root, "data", "training")
         os.makedirs(self.data_dir, exist_ok=True)
+
+        # キーワード辞書
+        self.category_keywords = {
+            "数学": ["計算", "数式", "証明", "微分", "積分"],
+            "統計学": ["統計", "確率", "分布", "標本", "検定"],
+            "機械学習": ["ML", "AI", "学習", "モデル", "予測"],
+            "理論": ["理論", "原理", "定理", "公理", "法則"],
+            "プログラミング": ["コード", "プログラム", "開発", "実装"]
+        }
         
-        # Notionから既存タスクを読み込み
-        self.existing_tasks = self._load_existing_tasks()
+        self.priority_keywords = {
+            "高": ["重要", "急ぎ", "必須", "絶対", "今すぐ"],
+            "中": ["なるべく", "できれば", "そろそろ"],
+            "低": ["余裕", "ゆっくり"]
+        }
         
         # テンプレートの初期化
         self._init_templates()
+
+        # Notionから既存タスクを読み込み（エラー時は空リスト）
+        self.existing_tasks = []
+        try:
+            self.existing_tasks = self._load_existing_tasks()
+        except Exception as e:
+            logger.error(f"既存タスクの読み込みに失敗: {e}")
 
     def _init_templates(self):
         """
@@ -47,117 +67,95 @@ class DataManager:
         - 期限の表現（今日、明日など）
         - アクション（終わらせる、提出するなど）
         """
-        # タスクの種類
-        self.task_types = [
-            "レポート", "課題", "宿題", "テスト", "演習",
-            "プリント", "問題集", "中間試験", "期末試験"
-        ]
-        
-        # 各カテゴリのテンプレート
-        self.templates = {
-            # 数学カテゴリ
-            "数学": {
-                "high": [  # 高優先度
-                    "数学の{task}を{deadline}までに急いで{action}",
-                    "緊急：{deadline}までの数学の{task}",
-                    "{deadline}締切の数学{task}、最優先で{action}"
-                ],
-                "medium": [  # 中優先度
-                    "数学の{task}を{deadline}までに{action}",
-                    "{deadline}までの数学{task}",
-                    "通常の数学{task}を{deadline}までに"
-                ],
-                "low": [  # 低優先度
-                    "余裕のある数学の{task}、{deadline}まで",
-                    "{deadline}の数学{task}、後でいい",
-                    "数学{task}、{deadline}が期限"
-                ]
-            },
-            # 統計学カテゴリ（同様のパターン）
-            "統計学": {
-                "high": [
-                    "統計の{task}、{deadline}までに急いで{action}",
-                    "優先度高：{deadline}の統計{task}",
-                    "統計学の{task}を即急で{action}"
-                ],
-                "medium": [
-                    "統計の{task}を{deadline}までに{action}",
-                    "{deadline}の統計{task}",
-                    "通常の統計課題、期限{deadline}"
-                ],
-                "low": [
-                    "統計の{task}、{deadline}まで余裕あり",
-                    "ゆっくりでいい統計{task}、{deadline}まで",
-                    "{deadline}の統計{task}、急ぎではない"
-                ]
-            },
-            # 機械学習カテゴリ
-            "機械学習": {
-                "high": [
-                    "機械学習の{task}を{deadline}までに急いで{action}",
-                    "緊急：{deadline}までの機械学習{task}",
-                    "機械学習{task}、{deadline}までに最優先で{action}"
-                ],
-                "medium": [
-                    "機械学習の{task}を{deadline}までに{action}",
-                    "{deadline}の機械学習{task}",
-                    "通常の機械学習課題、期限{deadline}"
-                ],
-                "low": [
-                    "機械学習の{task}、{deadline}まで余裕あり",
-                    "{deadline}の機械学習{task}、後でいい",
-                    "機械学習{task}、{deadline}が期限"
-                ]
-            },
-            # 理論カテゴリ
-            "理論": {
-                "high": [
-                    "理論の{task}を{deadline}までに急いで{action}",
-                    "緊急：{deadline}までの理論{task}",
-                    "理論{task}、{deadline}までに最優先で{action}"
-                ],
-                "medium": [
-                    "理論の{task}を{deadline}までに{action}",
-                    "{deadline}の理論{task}",
-                    "通常の理論課題、期限{deadline}"
-                ],
-                "low": [
-                    "理論の{task}、{deadline}まで余裕あり",
-                    "{deadline}の理論{task}、後でいい",
-                    "理論{task}、{deadline}が期限"
-                ]
-            },
-            # プログラミングカテゴリ
-            "プログラミング": {
-                "high": [
-                    "プログラミングの{task}を{deadline}までに急いで{action}",
-                    "緊急：{deadline}までのプログラミング{task}",
-                    "プログラミング{task}、{deadline}までに最優先で{action}"
-                ],
-                "medium": [
-                    "プログラミングの{task}を{deadline}までに{action}",
-                    "{deadline}のプログラミング{task}",
-                    "通常のプログラミング課題、期限{deadline}"
-                ],
-                "low": [
-                    "プログラミングの{task}、{deadline}まで余裕あり",
-                    "{deadline}のプログラミング{task}、後でいい",
-                    "プログラミング{task}、{deadline}が期限"
-                ]
-            }
+        # 基本的なタスクの種類（出現確率）
+        self.task_types = {
+            "レポート": 0.3,
+            "課題": 0.25,
+            "宿題": 0.15,
+            "テスト": 0.1,
+            "演習": 0.1,
+            "プリント": 0.05,
+            "問題集": 0.05
         }
         
-        # 期限の表現
-        self.deadlines = [
-            "今日", "明日", "明後日", "今週末", "来週",
-            "今月末", "３日後", "一週間後", "２週間後"
-        ]
-        
-        # アクション
-        self.actions = [
-            "終わらせる", "完了する", "提出する",
-            "仕上げる", "完成させる", "片付ける"
-        ]
+        # 期限の表現と日数のマッピング
+        self.deadline_patterns = {
+            "今日": {"days": 0, "weight": 0.1},
+            "明日": {"days": 1, "weight": 0.2},
+            "明後日": {"days": 2, "weight": 0.15},
+            "今週末": {"days": (5 - datetime.now().weekday()), "weight": 0.15},
+            "来週": {"days": 7, "weight": 0.2},
+            "再来週": {"days": 14, "weight": 0.1},
+            "今月末": {"days": (calendar.monthrange(datetime.now().year, datetime.now().month)[1] - datetime.now().day), "weight": 0.1}
+        }
+
+        # アクションと優先度の関連付け
+        self.actions = {
+            "高": {
+                "終わらせる": 0.3,
+                "完了する": 0.2,
+                "提出する": 0.3,
+                "急いで仕上げる": 0.2
+            },
+            "中": {
+                "進める": 0.3,
+                "取り組む": 0.3,
+                "準備する": 0.2,
+                "確認する": 0.2
+            },
+            "低": {
+                "着手する": 0.4,
+                "確認しておく": 0.3,
+                "目を通す": 0.3
+            }
+        }
+
+        # 各カテゴリのテンプレート
+        self.templates = {
+            "数学": self._create_category_templates("数学", ["計算", "証明", "問題"]),
+            "統計学": self._create_category_templates("統計", ["分析", "検定", "推定"]),
+            "機械学習": self._create_category_templates("機械学習", ["モデル", "学習", "予測"]),
+            "理論": self._create_category_templates("理論", ["定理", "公理", "法則"]),
+            "プログラミング": self._create_category_templates("プログラミング", ["実装", "開発", "コーディング"])
+        }
+
+    def _create_category_templates(self, category: str, keywords: List[str]) -> Dict[str, List[str]]:
+        """カテゴリごとのテンプレートを生成"""
+        return {
+            "高": [
+                f"{category}の{{task}}を{{deadline}}までに急いで{{action}}"
+            ] + [
+                # リスト内包表記を正しい構文で記述
+                f"緊急：{{deadline}}までの{category}の{{task}}（{keyword}）" 
+                for keyword in keywords
+            ] + [
+                f"{category}の重要な{{task}}、{{deadline}}までに{{action}}"
+            ],
+            "中": [
+                f"{category}の{{task}}を{{deadline}}までに{{action}}"
+            ] + [
+                f"{category}の{{task}}（{keyword}）を{{deadline}}までに" 
+                for keyword in keywords
+            ] + [
+                f"通常の{category}{{task}}、期限{{deadline}}"
+            ],
+            "低": [
+                f"{category}の{{task}}、{{deadline}}まで余裕あり",
+                f"優先度低：{category}の{{task}}（{{deadline}}まで）",
+                f"{category}の{{task}}、ゆっくり{{action}}"
+            ]
+        }
+    
+    def _determine_priority_from_deadline(self, days: int) -> str:
+        """期限から優先度を決定"""
+        if days <= 1:
+            return "高"
+        elif days <= 3:
+            return random.choices(["高", "中"], weights=[0.7, 0.3])[0]
+        elif days <= 7:
+            return random.choices(["中", "低"], weights=[0.7, 0.3])[0]
+        else:
+            return "低"
 
     def _load_existing_tasks(self) -> List[Dict[str, Any]]:
         """
@@ -175,13 +173,213 @@ class DataManager:
             result = notion_service.list_tasks()
             
             if result["success"]:
-                logger.info(f"{len(result['tasks'])}件の既存タスクを読み込みました")
-                return result["tasks"]
+                tasks = result["tasks"]
+                processed_tasks = self._preprocess_notion_tasks(tasks)
+                logger.info(f"{len(processed_tasks)}件の既存タスクを読み込みました")
+                return processed_tasks
             
         except Exception as e:
             logger.error(f"既存タスクの読み込みに失敗: {e}")
         
         return []
+
+    def _preprocess_notion_tasks(self, tasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Notionから取得したタスクデータの前処理
+        
+        処理内容:
+        1. 不完全なデータの補完
+        2. 日付情報の標準化
+        3. 優先度の推定（ない場合）
+        4. カテゴリの推定（ない場合）
+        """
+        processed_tasks = []
+        
+        for task in tasks:
+            if not task.get("title"):  # タイトルがない場合はスキップ
+                continue
+                
+            processed_task = {
+                "title": task["title"],
+                "category": task.get("category"),
+                "priority": task.get("priority"),
+                "due_date": task.get("due_date"),
+                "status": task.get("status", "未着手")
+            }
+
+            # 日付情報の処理
+            if processed_task["due_date"]:
+                try:
+                    due_date = datetime.strptime(processed_task["due_date"], "%Y-%m-%d")
+                    days_until = (due_date.date() - datetime.now().date()).days
+                    processed_task["days_until"] = days_until
+                    processed_task["deadline_type"] = self._get_deadline_type(days_until)
+                except ValueError:
+                    processed_task["days_until"] = None
+                    processed_task["deadline_type"] = "未設定"
+            
+            # カテゴリの推定（未設定の場合）
+            if not processed_task["category"]:
+                processed_task["category"] = self._estimate_category_from_title(task["title"])
+            
+            # 優先度の推定（未設定の場合）
+            if not processed_task["priority"]:
+                processed_task["priority"] = self._estimate_priority_from_task(processed_task)
+            
+            processed_tasks.append(processed_task)
+        
+        return processed_tasks
+    
+    def _get_deadline_type(self, days_until: int) -> str:
+        """日数から期限タイプを判定"""
+        if days_until < 0:
+            return "期限切れ"
+        elif days_until == 0:
+            return "今日"
+        elif days_until == 1:
+            return "明日"
+        elif days_until == 2:
+            return "明後日"
+        elif days_until <= 7:
+            return "今週"
+        elif days_until <= 14:
+            return "来週"
+        else:
+            return "長期"
+    
+    def _estimate_category_from_title(self, title: str) -> str:
+        """タイトルからカテゴリを推定"""
+        max_matches = 0
+        best_category = "その他"
+        
+        for category, keywords in self.category_keywords.items():
+            matches = sum(1 for keyword in keywords if keyword in title)
+            if matches > max_matches:
+                max_matches = matches
+                best_category = category
+        
+        return best_category
+
+    def _estimate_priority_from_task(self, task: Dict[str, Any]) -> str:
+        """
+        タスク情報から優先度を推定
+        
+        推定基準:
+        1. 期限までの日数
+        2. タイトルのキーワード
+        3. ステータス
+        """
+
+        # キーワードベースの優先度
+        keyword_priority = None
+        title = task["title"].lower()
+        for priority, keywords in self.priority_keywords.items():
+            if any(keyword in title for keyword in keywords):
+                keyword_priority = priority
+                break
+
+        # 期限ベースの優先度
+        if task.get("days_until") is not None:
+            deadline_priority = self._determine_priority_from_deadline(task["days_until"])
+        else:
+            deadline_priority = "中"
+
+        # ステータスベースの優先度調整
+        status = task.get("status", "未着手")
+        if status == "遅延":
+            return "高"
+        elif status == "進行中":
+            return deadline_priority
+        
+        # 最終的な優先度の決定
+        if keyword_priority:
+            # キーワードと期限ベースの優先度を比較して、より高い方を採用
+            priority_levels = {"高": 3, "中": 2, "低": 1}
+            return max(
+                keyword_priority,
+                deadline_priority,
+                key=lambda x: priority_levels[x]
+            )
+        
+        return deadline_priority
+
+    def _generate_template_based_data(self, num_samples: int) -> List[Dict[str, Any]]:
+        """テンプレートベースの学習データを生成"""
+        training_data = []
+        
+        for _ in range(num_samples):
+            # 基本情報の生成
+            category = random.choice(list(self.templates.keys()))
+            task_type = random.choices(
+                list(self.task_types.keys()),
+                weights=list(self.task_types.values())
+            )[0]
+            
+            # 期限の生成
+            deadline_pattern = random.choices(
+                list(self.deadline_patterns.keys()),
+                weights=[p["weight"] for p in self.deadline_patterns.values()]
+            )[0]
+            days_until = self.deadline_patterns[deadline_pattern]["days"]
+            
+            # 優先度の決定
+            priority = self._determine_priority_from_deadline(days_until)
+            
+            # アクションの選択
+            action = random.choices(
+                list(self.actions[priority].keys()),
+                weights=list(self.actions[priority].values())
+            )[0]
+            
+            # テンプレートの選択と文章生成
+            template = random.choice(self.templates[category][priority.lower()])
+            text = template.format(
+                task=task_type,
+                deadline=deadline_pattern,
+                action=action
+            )
+
+            # データの追加
+            training_data.append({
+                "text": text,
+                "labels": {
+                    "category": category,
+                    "priority": priority,
+                    "deadline_type": deadline_pattern,
+                    "days_until": days_until
+                }
+            })
+        
+        return training_data
+
+    def _generate_existing_based_data(self, num_samples: int) -> List[Dict[str, Any]]:
+        """既存タスクベースの学習データを生成"""
+        if not self.existing_tasks:
+            return []
+            
+        training_data = []
+        for _ in range(num_samples):
+            task = random.choice(self.existing_tasks)
+            
+            # テキストの生成
+            text = f"{task['title']}"
+            if task.get('due_date'):
+                text += f"、期限は{task['due_date']}"
+            if task.get('priority'):
+                text += f"、優先度{task['priority']}"
+                
+            # データの追加
+            training_data.append({
+                "text": text,
+                "labels": {
+                    "category": task.get("category", "その他"),
+                    "priority": task.get("priority", "中"),
+                    "deadline_type": task.get("deadline_type"),
+                    "days_until": task.get("days_until")
+                }
+            })
+        
+        return training_data
 
     def generate_training_data(self, num_samples: int = 1000) -> List[Dict[str, Any]]:
         """
@@ -199,46 +397,15 @@ class DataManager:
         """
         training_data = []
 
-        # テンプレートベースのデータ生成
-        for _ in range(num_samples):
-            # ランダムな要素の選択
-            category = random.choice(list(self.templates.keys()))
-            priority = random.choice(["high", "medium", "low"])
-            task = random.choice(self.task_types)
-            deadline = random.choice(self.deadlines)
-            action = random.choice(self.actions)
-
-            # テンプレートの選択と適用
-            template = random.choice(self.templates[category][priority])
-            text = template.format(
-                task=task,
-                deadline=deadline,
-                action=action
-            )
-
-            # データの追加
-            training_data.append({
-                "text": text,
-                "labels": {
-                    "category": category,
-                    "priority": "高" if priority == "high" else "中" if priority == "medium" else "低",
-                    "deadline_type": deadline
-                }
-            })
-
-        # 既存タスクからのデータ追加
-        for task in self.existing_tasks:
-            if task.title and task.category:
-                text = f"{task.title} {task.due_date if task.due_date else ''}"
-                training_data.append({
-                    "text": text,
-                    "labels": {
-                        "category": task.category,
-                        "priority": task.priority if task.priority else "中",
-                        "deadline_type": "指定日" if task.due_date else "未設定"
-                    }
-                })
-
+        # テンプレートベースのデータ生成（80%）
+        template_samples = int(num_samples * 0.8)
+        training_data.extend(self._generate_template_based_data(template_samples))
+        
+        # 既存タスクからのデータ生成（20%）
+        if self.existing_tasks:
+            existing_samples = num_samples - template_samples
+            training_data.extend(self._generate_existing_based_data(existing_samples))
+        
         return training_data
 
     def save_data(self, data: List[Dict[str, Any]], filename: str):

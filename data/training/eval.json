@@ -1,1602 +1,1442 @@
 [
   {
-    "text": "数学課題、３日後が期限",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "来週までの数学中間試験",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "通常のプログラミング課題、期限今日",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "緊急：明日までの数学のテスト",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "数学の問題集を来週までに提出する",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "機械学習宿題、一週間後が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "緊急：来週までの理論プリント",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "機械学習宿題、明後日までに最優先で片付ける",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "来週の数学中間試験、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "優先度高：明日の統計課題",
+    "text": "統計の課題を明日までに急いで完了する",
     "labels": {
       "category": "統計学",
       "priority": "高",
-      "deadline_type": "明日"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "通常の統計課題、期限今月末",
+    "text": "数学のレポート、来週まで余裕あり",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明日までの数学の宿題（計算）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "機械学習の宿題、ゆっくり着手する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "プログラミングのレポート、今月末まで余裕あり",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "数学の課題を今日までに急いで終わらせる",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "統計のテスト（分析）を来週までに",
     "labels": {
       "category": "統計学",
       "priority": "中",
-      "deadline_type": "今月末"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "一週間後の統計課題",
+    "text": "緊急：今日までの機械学習の課題（モデル）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "統計の宿題（検定）を来週までに",
     "labels": {
       "category": "統計学",
       "priority": "中",
-      "deadline_type": "一週間後"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "プログラミングの演習を今日までに完了する",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "明後日の数学演習、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "機械学習のテスト、一週間後まで余裕あり",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "緊急：一週間後までのプログラミングレポート",
+    "text": "プログラミングの重要な演習、明日までに終わらせる",
     "labels": {
       "category": "プログラミング",
       "priority": "高",
-      "deadline_type": "一週間後"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "通常の統計課題、期限今週末",
+    "text": "数学のテスト、ゆっくり確認しておく",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "緊急：明後日までの機械学習の宿題（予測）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "統計のレポート（検定）を明後日までに",
     "labels": {
       "category": "統計学",
       "priority": "中",
-      "deadline_type": "今週末"
+      "deadline_type": "明後日",
+      "days_until": 2
     }
   },
   {
-    "text": "３日後の理論課題",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "通常の統計課題、期限明日",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "緊急：今週末までの理論レポート",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "機械学習中間試験、今週末が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "来週の数学課題、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "来週の数学プリント、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "数学問題集、明後日が期限",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "理論プリント、明日が期限",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "統計の演習、今月末までに急いで提出する",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "理論テスト、今月末までに最優先で仕上げる",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "理論の期末試験を今月末までに急いで終わらせる",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "機械学習のレポートを今週末までに終わらせる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "明後日の数学課題、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "理論宿題、今週末までに最優先で完了する",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "理論の課題を一週間後までに仕上げる",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "今月末のプログラミング期末試験",
+    "text": "プログラミングの宿題（開発）を今週末までに",
     "labels": {
       "category": "プログラミング",
       "priority": "中",
-      "deadline_type": "今月末"
+      "deadline_type": "今週末",
+      "days_until": 4
     }
   },
   {
-    "text": "通常の理論課題、期限今月末",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "プログラミングプリント、一週間後までに最優先で仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "明日のプログラミングプリント",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "理論期末試験、今週末までに最優先で完了する",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "緊急：一週間後までのプログラミング宿題",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "一週間後の統計プリント",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "緊急：３日後までの理論課題",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "通常の理論課題、期限今月末",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "緊急：明後日までの理論レポート",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "優先度高：今週末の統計演習",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "３日後締切の数学演習、最優先で仕上げる",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "数学問題集、来週が期限",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "今週末の機械学習中間試験、後でいい",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "理論の演習を来週までに急いで完了する",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "緊急：今日までの理論テスト",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "通常のプログラミング課題、期限２週間後",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "明日のプログラミングテスト",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "３日後の数学テスト、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "プログラミングの演習を３日後までに急いで仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "機械学習期末試験、一週間後が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "プログラミングの中間試験を３日後までに仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "理論問題集、今月末が期限",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "プログラミングのプリントを来週までに急いで完成させる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "数学のプリントを３日後までに終わらせる",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "３日後の理論中間試験",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "統計のテストを今日までに終わらせる",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "来週のプログラミングテスト",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "プログラミングのテストを明後日までに終わらせる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "機械学習の期末試験を来週までに急いで仕上げる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "余裕のある数学の宿題、今日まで",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "来週の理論テスト",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "明日の機械学習プリント、後でいい",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "緊急：一週間後までの理論演習",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "今日の統計中間試験",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "機械学習のテストを一週間後までに急いで完了する",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "ゆっくりでいい統計テスト、今日まで",
+    "text": "統計の課題、ゆっくり着手する",
     "labels": {
       "category": "統計学",
       "priority": "低",
-      "deadline_type": "今日"
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "緊急：今日までのプログラミング問題集",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "機械学習のテスト、３日後まで余裕あり",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "統計の問題集、３日後までに急いで終わらせる",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "数学の中間試験を明日までに急いで完成させる",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "数学の中間試験を明日までに急いで片付ける",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "理論中間試験、今日が期限",
+    "text": "緊急：明日までの理論の課題（公理）",
     "labels": {
       "category": "理論",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "今月末までの数学宿題",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "来週の機械学習演習、後でいい",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "緊急：３日後までのプログラミング課題",
-    "labels": {
-      "category": "プログラミング",
       "priority": "高",
-      "deadline_type": "３日後"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "明後日の理論宿題、後でいい",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "余裕のある数学の期末試験、今月末まで",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "統計のレポートを３日後までに完了する",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "プログラミングのプリント、来週まで余裕あり",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "緊急：今月末までの機械学習演習",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "統計のテスト、２週間後まで余裕あり",
+    "text": "統計の宿題、今月末まで余裕あり",
     "labels": {
       "category": "統計学",
       "priority": "低",
-      "deadline_type": "２週間後"
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "機械学習テスト、３日後が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "統計のテスト、今日までに急いで完了する",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "今週末の理論演習",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "機械学習テスト、明日が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "統計学のレポートを即急で完成させる",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "緊急：明後日までの機械学習課題",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "統計の演習を一週間後までに提出する",
+    "text": "統計のレポート（推定）を明後日までに",
     "labels": {
       "category": "統計学",
       "priority": "中",
-      "deadline_type": "一週間後"
+      "deadline_type": "明後日",
+      "days_until": 2
     }
   },
   {
-    "text": "理論のプリントを明日までに完了する",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "プログラミングの宿題を来週までに片付ける",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "数学課題、明後日が期限",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "３日後の数学プリント、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限明日",
+    "text": "緊急：今日までの機械学習のレポート（予測）",
     "labels": {
       "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "プログラミングのテスト、２週間後まで余裕あり",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "機械学習レポート、２週間後が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "今日のプログラミング期末試験、後でいい",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限２週間後",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "今週末のプログラミング問題集、後でいい",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "理論のプリントを今週末までに急いで仕上げる",
-    "labels": {
-      "category": "理論",
       "priority": "高",
-      "deadline_type": "今週末"
+      "deadline_type": "今日",
+      "days_until": 0
     }
   },
   {
-    "text": "数学のプリントを来週までに急いで終わらせる",
+    "text": "機械学習の演習、ゆっくり目を通す",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明日までの機械学習の宿題（予測）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "機械学習の問題集（予測）を来週までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習の演習、ゆっくり着手する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "緊急：明日までの数学の課題（問題）",
     "labels": {
       "category": "数学",
       "priority": "高",
-      "deadline_type": "来週"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "緊急：３日後までのプログラミング期末試験",
+    "text": "緊急：今日までの機械学習のレポート（学習）",
     "labels": {
-      "category": "プログラミング",
+      "category": "機械学習",
       "priority": "高",
-      "deadline_type": "３日後"
+      "deadline_type": "今日",
+      "days_until": 0
     }
   },
   {
-    "text": "緊急：一週間後までのプログラミングテスト",
+    "text": "緊急：今日までの機械学習のレポート（学習）",
     "labels": {
-      "category": "プログラミング",
+      "category": "機械学習",
       "priority": "高",
-      "deadline_type": "一週間後"
+      "deadline_type": "今日",
+      "days_until": 0
     }
   },
   {
-    "text": "機械学習の課題を今週末までに終わらせる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "３日後の機械学習レポート",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "理論課題、来週が期限",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "通常の数学演習を明日までに",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "機械学習の宿題を３日後までに終わらせる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "理論レポート、一週間後が期限",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "プログラミングレポート、今週末が期限",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "統計の期末試験、一週間後までに急いで提出する",
+    "text": "統計の重要なレポート、明日までに急いで仕上げる",
     "labels": {
       "category": "統計学",
       "priority": "高",
-      "deadline_type": "一週間後"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "統計の問題集、明日まで余裕あり",
+    "text": "緊急：明日までの数学の宿題（計算）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "優先度低：統計の課題（今月末まで）",
     "labels": {
       "category": "統計学",
       "priority": "低",
-      "deadline_type": "明日"
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "２週間後締切の数学問題集、最優先で仕上げる",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "機械学習問題集、今日までに最優先で片付ける",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "数学の問題集を２週間後までに急いで終わらせる",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "通常の数学中間試験を２週間後までに",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "理論の問題集を明後日までに終わらせる",
+    "text": "理論のテスト（定理）を来週までに",
     "labels": {
       "category": "理論",
       "priority": "中",
-      "deadline_type": "明後日"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "理論の演習を２週間後までに急いで完成させる",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "今週末の理論レポート",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "機械学習テスト、明日が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "プログラミングの宿題、明日まで余裕あり",
+    "text": "優先度低：プログラミングの課題（再来週まで）",
     "labels": {
       "category": "プログラミング",
       "priority": "低",
-      "deadline_type": "明日"
+      "deadline_type": "再来週",
+      "days_until": 14
     }
   },
   {
-    "text": "通常の理論課題、期限今日",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "理論の宿題、今週末まで余裕あり",
+    "text": "優先度低：理論の演習（今月末まで）",
     "labels": {
       "category": "理論",
       "priority": "低",
-      "deadline_type": "今週末"
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "通常の機械学習課題、期限今日",
+    "text": "機械学習の課題（モデル）を来週までに",
     "labels": {
       "category": "機械学習",
       "priority": "中",
-      "deadline_type": "今日"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "プログラミングのプリントを明日までに急いで仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "優先度高：来週の統計問題集",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "統計の問題集、今日まで余裕あり",
-    "labels": {
-      "category": "統計学",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "プログラミングのレポートを一週間後までに完了する",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "プログラミングのテスト、一週間後まで余裕あり",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限今週末",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "プログラミングの宿題を明日までに急いで仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "統計の宿題、明日までに急いで完了する",
-    "labels": {
-      "category": "統計学",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "余裕のある数学の課題、明後日まで",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "緊急：２週間後までの数学の中間試験",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "機械学習中間試験、来週までに最優先で仕上げる",
+    "text": "機械学習の重要なレポート、明日までに完了する",
     "labels": {
       "category": "機械学習",
       "priority": "高",
-      "deadline_type": "来週"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "緊急：今日までの機械学習テスト",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "理論期末試験、２週間後までに最優先で片付ける",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "今月末の数学宿題、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "プログラミング課題、来週までに最優先で終わらせる",
+    "text": "緊急：明後日までのプログラミングのテスト（開発）",
     "labels": {
       "category": "プログラミング",
       "priority": "高",
-      "deadline_type": "来週"
+      "deadline_type": "明後日",
+      "days_until": 2
     }
   },
   {
-    "text": "一週間後のプログラミング課題、後でいい",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "緊急：３日後までのプログラミング中間試験",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "３日後の統計中間試験",
+    "text": "統計のレポートを今週末までに確認する",
     "labels": {
       "category": "統計学",
       "priority": "中",
-      "deadline_type": "３日後"
+      "deadline_type": "今週末",
+      "days_until": 4
     }
   },
   {
-    "text": "プログラミングの演習、来週まで余裕あり",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "統計学のプリントを即急で終わらせる",
+    "text": "緊急：今日までの統計の問題集（分析）",
     "labels": {
       "category": "統計学",
       "priority": "高",
-      "deadline_type": "２週間後"
+      "deadline_type": "今日",
+      "days_until": 0
     }
   },
   {
-    "text": "理論のテスト、来週まで余裕あり",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "通常の統計課題、期限明日",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "通常のプログラミング課題、期限今週末",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "一週間後までの数学プリント",
+    "text": "数学のレポート（問題）を来週までに",
     "labels": {
       "category": "数学",
       "priority": "中",
-      "deadline_type": "一週間後"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "機械学習の宿題を２週間後までに終わらせる",
+    "text": "優先度低：数学のレポート（今月末まで）",
     "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "明日の統計期末試験",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "今月末の機械学習中間試験",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "通常のプログラミング課題、期限今月末",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "通常のプログラミング課題、期限明後日",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "明後日"
-    }
-  },
-  {
-    "text": "統計の中間試験、来週まで余裕あり",
-    "labels": {
-      "category": "統計学",
+      "category": "数学",
       "priority": "低",
-      "deadline_type": "来週"
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "緊急：今月末までのプログラミング中間試験",
+    "text": "理論のプリント（法則）を今週末までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "プログラミングのレポート、今月末まで余裕あり",
     "labels": {
       "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "今月末"
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
     }
   },
   {
-    "text": "明後日の統計テスト",
+    "text": "理論の課題（公理）を来週までに",
     "labels": {
-      "category": "統計学",
+      "category": "理論",
       "priority": "中",
-      "deadline_type": "明後日"
+      "deadline_type": "来週",
+      "days_until": 7
     }
   },
   {
-    "text": "統計学の宿題を即急で片付ける",
+    "text": "プログラミングのレポート、今月末まで余裕あり",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "数学のレポート、今月末まで余裕あり",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "プログラミングの課題、ゆっくり確認しておく",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "緊急：明後日までの統計の問題集（分析）",
     "labels": {
       "category": "統計学",
       "priority": "高",
-      "deadline_type": "今月末"
+      "deadline_type": "明後日",
+      "days_until": 2
     }
   },
   {
-    "text": "プログラミングの問題集を今月末までに仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "一週間後の数学宿題、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "今週末の理論演習",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "理論の中間試験を３日後までに片付ける",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "理論の中間試験を２週間後までに急いで仕上げる",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "２週間後の理論プリント",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "明日の数学課題、後でいい",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "緊急：２週間後までのプログラミング宿題",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "通常の数学問題集を明日までに",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "緊急：２週間後までのプログラミング期末試験",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限来週",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "機械学習の問題集を今月末までに急いで提出する",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "今月末"
-    }
-  },
-  {
-    "text": "数学の宿題を明日までに急いで提出する",
-    "labels": {
-      "category": "数学",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "通常の統計課題、期限来週",
-    "labels": {
-      "category": "統計学",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "機械学習の課題を一週間後までに完成させる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "理論の演習を今週末までに終わらせる",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "通常の理論課題、期限今日",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "プログラミングの問題集を３日後までに終わらせる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "プログラミング中間試験、３日後が期限",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "明日のプログラミングテスト、後でいい",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "プログラミングのテストを２週間後までに急いで仕上げる",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "高",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "緊急：３日後までの機械学習宿題",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "機械学習の問題集、一週間後まで余裕あり",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "理論プリント、２週間後が期限",
-    "labels": {
-      "category": "理論",
-      "priority": "低",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "機械学習の演習を明日までに急いで仕上げる",
-    "labels": {
-      "category": "機械学習",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限明日",
-    "labels": {
-      "category": "機械学習",
-      "priority": "中",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "統計のプリント、今日まで余裕あり",
-    "labels": {
-      "category": "統計学",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "通常の数学問題集を２週間後までに",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "２週間後"
-    }
-  },
-  {
-    "text": "通常の理論課題、期限３日後",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "３日後"
-    }
-  },
-  {
-    "text": "機械学習プリント、一週間後が期限",
-    "labels": {
-      "category": "機械学習",
-      "priority": "低",
-      "deadline_type": "一週間後"
-    }
-  },
-  {
-    "text": "プログラミングテスト、来週が期限",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "低",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "来週のプログラミング中間試験",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "来週"
-    }
-  },
-  {
-    "text": "数学のレポートを今週末までに仕上げる",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "理論の課題を明日までに急いで仕上げる",
-    "labels": {
-      "category": "理論",
-      "priority": "高",
-      "deadline_type": "明日"
-    }
-  },
-  {
-    "text": "通常の数学中間試験を今週末までに",
-    "labels": {
-      "category": "数学",
-      "priority": "中",
-      "deadline_type": "今週末"
-    }
-  },
-  {
-    "text": "優先度高：明日の統計宿題",
+    "text": "緊急：明日までの統計のレポート（検定）",
     "labels": {
       "category": "統計学",
       "priority": "高",
-      "deadline_type": "明日"
+      "deadline_type": "明日",
+      "days_until": 1
     }
   },
   {
-    "text": "通常の理論課題、期限今月末",
+    "text": "理論の重要な課題、明後日までに終わらせる",
     "labels": {
       "category": "理論",
-      "priority": "中",
-      "deadline_type": "今月末"
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
     }
   },
   {
-    "text": "プログラミングの演習を今日までに片付ける",
-    "labels": {
-      "category": "プログラミング",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "理論の中間試験を今日までに完成させる",
-    "labels": {
-      "category": "理論",
-      "priority": "中",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "余裕のある数学の問題集、今日まで",
-    "labels": {
-      "category": "数学",
-      "priority": "低",
-      "deadline_type": "今日"
-    }
-  },
-  {
-    "text": "通常の機械学習課題、期限２週間後",
+    "text": "機械学習の課題（学習）を明後日までに",
     "labels": {
       "category": "機械学習",
       "priority": "中",
-      "deadline_type": "２週間後"
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "数学のレポート（問題）を来週までに",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習の重要な問題集、明日までに終わらせる",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：明日までのプログラミングの課題（実装）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：今日までの統計のプリント（推定）",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "理論の重要なプリント、明後日までに急いで仕上げる",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "機械学習の重要な宿題、明後日までに提出する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "数学の課題（証明）を来週までに",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習の課題（学習）を来週までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論の宿題、来週まで余裕あり",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "プログラミングのレポート、ゆっくり確認しておく",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "数学のプリントを明日までに急いで提出する",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "プログラミングの宿題を今週末までに取り組む",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "機械学習の課題を明日までに急いで提出する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "数学の問題集、今月末まで余裕あり",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "プログラミングの問題集を今週末までに進める",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "プログラミングのレポート、ゆっくり着手する",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "プログラミングの課題（実装）を今週末までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "プログラミングのレポート（コーディング）を今週末までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "優先度低：機械学習のテスト（今週末まで）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "数学の課題、来週まで余裕あり",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習の課題を今週末までに準備する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "理論のレポート（法則）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "統計の重要な宿題、明日までに終わらせる",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：明後日までのプログラミングの宿題（実装）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "理論の課題、ゆっくり確認しておく",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "数学の重要な課題、明日までに急いで仕上げる",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "優先度低：数学の課題（今月末まで）",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "優先度低：理論の課題（来週まで）",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論のレポート（法則）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "統計のテスト（分析）を来週までに",
+    "labels": {
+      "category": "統計学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "通常の数学プリント、期限来週",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明日までの数学の宿題（計算）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "理論の宿題、ゆっくり着手する",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "理論のレポート、来週まで余裕あり",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論のレポート、ゆっくり着手する",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "緊急：明日までの数学のテスト（証明）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "理論のレポート、ゆっくり着手する",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "通常の機械学習宿題、期限明後日",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "緊急：明日までの理論の課題（公理）",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "プログラミングの課題を明日までに急いで終わらせる",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "プログラミングの問題集を来週までに進める",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "数学の宿題（問題）を来週までに",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明日までの数学のレポート（問題）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "数学の演習（計算）を来週までに",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習の課題（予測）を明後日までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "緊急：明後日までの統計の演習（推定）",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "プログラミングの問題集、ゆっくり着手する",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "統計の宿題を今週末までに進める",
+    "labels": {
+      "category": "統計学",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "数学の課題を明後日までに急いで終わらせる",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "理論の課題、今月末まで余裕あり",
+    "labels": {
+      "category": "理論",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "緊急：明後日までのプログラミングのテスト（実装）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "統計のレポートを明日までに急いで完了する",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：今日までの統計の課題（分析）",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "プログラミングの問題集、今月末まで余裕あり",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "機械学習の重要なレポート、明日までに終わらせる",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "理論の宿題（公理）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：今日までのプログラミングのレポート（実装）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "優先度低：数学の課題（再来週まで）",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "機械学習のテスト（学習）を来週までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論の重要なレポート、明日までに終わらせる",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "優先度低：統計のレポート（再来週まで）",
+    "labels": {
+      "category": "統計学",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "機械学習の宿題を来週までに取り組む",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習のプリント（モデル）を明後日までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "機械学習のレポート、今月末まで余裕あり",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "通常の理論問題集、期限明後日",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "数学のテストを明日までに急いで終わらせる",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "機械学習の重要な宿題、明日までに終わらせる",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "理論の課題（公理）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論の課題（定理）を明後日までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "優先度低：数学の課題（来週まで）",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明後日までの機械学習の演習（予測）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "緊急：今日までのプログラミングの課題（実装）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "理論のレポート（法則）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "プログラミングのレポート（開発）を今週末までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "優先度低：機械学習のテスト（今月末まで）",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "数学のレポート（問題）を来週までに",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "プログラミングのプリント、今月末まで余裕あり",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "緊急：明日までの理論の演習（法則）",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "プログラミングの演習（実装）を来週までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習のテスト、今月末まで余裕あり",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今月末",
+      "days_until": 25
+    }
+  },
+  {
+    "text": "緊急：明日までの統計の課題（推定）",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：明後日までのプログラミングの演習（開発）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "数学の重要なテスト、今日までに終わらせる",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "プログラミングの宿題（コーディング）を明後日までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "機械学習の課題を来週までに進める",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "緊急：明日までの理論の問題集（定理）",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "数学の宿題、ゆっくり確認しておく",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "数学のレポートを来週までに進める",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "統計のレポート（検定）を明後日までに",
+    "labels": {
+      "category": "統計学",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "プログラミングのレポートを明後日までに準備する",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "統計の課題（分析）を来週までに",
+    "labels": {
+      "category": "統計学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "理論のレポート（定理）を来週までに",
+    "labels": {
+      "category": "理論",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習のレポート（モデル）を今週末までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "通常の数学レポート、期限来週",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "数学のレポートを来週までに進める",
+    "labels": {
+      "category": "数学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "プログラミングのプリント（コーディング）を今週末までに",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "機械学習の問題集を今日までに急いで急いで仕上げる",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "数学の宿題、ゆっくり目を通す",
+    "labels": {
+      "category": "数学",
+      "priority": "低",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "機械学習のレポート、今週末まで余裕あり",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "緊急：明後日までのプログラミングの課題（開発）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "緊急：明日までのプログラミングの宿題（コーディング）",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "機械学習の重要な演習、明後日までに完了する",
+    "labels": {
+      "category": "機械学習",
+      "priority": "高",
+      "deadline_type": "明後日",
+      "days_until": 2
+    }
+  },
+  {
+    "text": "通常の統計レポート、期限来週",
+    "labels": {
+      "category": "統計学",
+      "priority": "中",
+      "deadline_type": "来週",
+      "days_until": 7
+    }
+  },
+  {
+    "text": "プログラミングの宿題、ゆっくり確認しておく",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "緊急：明日までの統計のテスト（検定）",
+    "labels": {
+      "category": "統計学",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "プログラミングのレポートを明日までに急いで提出する",
+    "labels": {
+      "category": "プログラミング",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "緊急：今日までの数学の宿題（証明）",
+    "labels": {
+      "category": "数学",
+      "priority": "高",
+      "deadline_type": "今日",
+      "days_until": 0
+    }
+  },
+  {
+    "text": "機械学習のテスト、再来週まで余裕あり",
+    "labels": {
+      "category": "機械学習",
+      "priority": "低",
+      "deadline_type": "再来週",
+      "days_until": 14
+    }
+  },
+  {
+    "text": "機械学習のレポート（学習）を今週末までに",
+    "labels": {
+      "category": "機械学習",
+      "priority": "中",
+      "deadline_type": "今週末",
+      "days_until": 4
+    }
+  },
+  {
+    "text": "緊急：明日までの理論のレポート（法則）",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
+    }
+  },
+  {
+    "text": "理論の重要なレポート、明日までに完了する",
+    "labels": {
+      "category": "理論",
+      "priority": "高",
+      "deadline_type": "明日",
+      "days_until": 1
     }
   }
 ]
