@@ -19,7 +19,20 @@ class Word2VecModel(BaseEmbeddingModel):
     
     def load_model(self):
         """Word2Vecモデルの読み込み"""
-        self.model = KeyedVectors.load_word2vec_format(self.model_path, binary=True)
+        try:
+            # バイナリ形式で読み込み
+            self.model = KeyedVectors.load(self.model_path)
+        except Exception as e:
+            try:
+                # 失敗した場合はword2vec形式で読み込み
+                self.model = KeyedVectors.load_word2vec_format(
+                    self.model_path,
+                    binary=False,
+                    encoding='utf-8'
+                )
+            except Exception as e:
+                raise Exception(f"モデルの読み込みに失敗しました: {str(e)}")
+        
         self.dimension = self.model.vector_size
     
     def tokenize(self, text: str) -> List[str]:

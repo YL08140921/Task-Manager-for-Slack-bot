@@ -22,7 +22,7 @@ class ModelDownloader:
         
         # モデルファイルのパス
         self.word2vec_path = self.word2vec_dir / "japanese.model"
-        self.fasttext_path = self.fasttext_dir / "japanese.bin"
+        self.fasttext_path = self.fasttext_dir / "cc.ja.300.bin"
         self.laser_path = self.laser_dir / "japanese"
 
     def create_directories(self):
@@ -61,6 +61,7 @@ class ModelDownloader:
         print("Word2Vecモデルをダウンロードしています...")
         url = "https://github.com/singletongue/WikiEntVec/releases/download/20190520/jawiki.word_vectors.300d.txt.bz2"
         bz2_path = self.word2vec_dir / "jawiki.word_vectors.300d.txt.bz2"
+        txt_path = self.word2vec_dir / "japanese.txt"
         
         success = self.download_with_progress(url, bz2_path)
         if success:
@@ -69,10 +70,20 @@ class ModelDownloader:
                 import bz2
                 print("ファイルを解凍しています...")
                 with bz2.open(bz2_path, 'rb') as f_in:
-                    with open(self.word2vec_path, 'wb') as f_out:
+                    with open(txt_path, 'wb') as f_out:
                         shutil.copyfileobj(f_in, f_out)
                 bz2_path.unlink()  # BZ2ファイルを削除
+
+                # テキストファイルをWord2Vecモデルに変換
+                print("モデルを変換しています...")
+                from gensim.models import KeyedVectors
+                model = KeyedVectors.load_word2vec_format(str(txt_path), binary=False)
+                model.save(str(self.word2vec_path))
+
+                # 中間ファイルを削除
+                txt_path.unlink()
                 return True
+
             except Exception as e:
                 print(f"解凍中にエラーが発生しました: {e}")
                 return False
@@ -131,10 +142,10 @@ class ModelDownloader:
     def verify_downloads(self):
         """ダウンロードの検証"""
         missing = []
-        if not self.word2vec_path.exists():
-            missing.append("Word2Vec")
-        # if not self.fasttext_path.exists():
-            # missing.append("FastText")
+        # if not self.word2vec_path.exists():
+            # missing.append("Word2Vec")
+        if not self.fasttext_path.exists():
+            missing.append("FastText")
         # if not self.laser_path.exists():
             # missing.append("LASER")
         return missing
@@ -144,8 +155,8 @@ class ModelDownloader:
         self.create_directories()
         
         results = {
-            "Word2Vec": self.download_word2vec(),
-            # "FastText": self.download_fasttext(),
+            # "Word2Vec": self.download_word2vec(),
+            "FastText": self.download_fasttext(),
             # "LASER": self.download_laser()
         }
         
