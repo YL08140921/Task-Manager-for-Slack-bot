@@ -13,3 +13,5 @@ ENV/
 
 # OS
 .DS_Store
+
+models/ai/pretrained/
