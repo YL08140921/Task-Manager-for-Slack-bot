@@ -28,7 +28,7 @@ class Config:
         default_paths = {
             'word2vec': str(self.pretrained_dir / "word2vec" / "japanese.model"),
             'fasttext': str(self.pretrained_dir / "fasttext" / "japanese.bin"),
-            'laser': str(self.pretrained_dir / "laser" / "japanese")
+            'laser': str(self.pretrained_dir / "laser")
         }
         
         # 環境変数が設定されている場合は優先

@@ -13,7 +13,7 @@ import sys
 
 class ModelDownloader:
     def __init__(self):
-        self.base_dir = Path("models/ai/pretrained")
+        self.base_dir = Path("/home/ubuntu/execution/Task-Manager-for-Slack-bot/models/ai/pretrained")
         
         # 各モデルのディレクトリ
         self.word2vec_dir = self.base_dir / "word2vec"
@@ -59,19 +59,19 @@ class ModelDownloader:
             return True
 
         print("Word2Vecモデルをダウンロードしています...")
-        url = "https://public.ukp.informatik.tu-darmstadt.de/reimers/sentence-transformers/v0.2/wikipedia_ja.zip"
-        zip_path = self.word2vec_dir / "wikipedia_ja.zip"
+        url = "https://github.com/singletongue/WikiEntVec/releases/download/20190520/jawiki.word_vectors.300d.txt.bz2"
+        bz2_path = self.word2vec_dir / "jawiki.word_vectors.300d.txt.bz2"
         
-        success = self.download_with_progress(url, zip_path)
+        success = self.download_with_progress(url, bz2_path)
         if success:
-            # ZIPファイルを解凍し、必要なファイルを移動
+            # BZ2ファイルを解凍
             try:
-                subprocess.run(["unzip", str(zip_path), "-d", str(self.word2vec_dir)])
-                os.rename(
-                    str(self.word2vec_dir / "wikipedia_ja.model"),
-                    str(self.word2vec_path)
-                )
-                zip_path.unlink()  # ZIPファイルを削除
+                import bz2
+                print("ファイルを解凍しています...")
+                with bz2.open(bz2_path, 'rb') as f_in:
+                    with open(self.word2vec_path, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                bz2_path.unlink()  # BZ2ファイルを削除
                 return True
             except Exception as e:
                 print(f"解凍中にエラーが発生しました: {e}")
@@ -133,10 +133,10 @@ class ModelDownloader:
         missing = []
         if not self.word2vec_path.exists():
             missing.append("Word2Vec")
-        if not self.fasttext_path.exists():
-            missing.append("FastText")
-        if not self.laser_path.exists():
-            missing.append("LASER")
+        # if not self.fasttext_path.exists():
+            # missing.append("FastText")
+        # if not self.laser_path.exists():
+            # missing.append("LASER")
         return missing
 
     def download_all(self):
@@ -145,8 +145,8 @@ class ModelDownloader:
         
         results = {
             "Word2Vec": self.download_word2vec(),
-            "FastText": self.download_fasttext(),
-            "LASER": self.download_laser()
+            # "FastText": self.download_fasttext(),
+            # "LASER": self.download_laser()
         }
         
         print("\nダウンロード結果:")
