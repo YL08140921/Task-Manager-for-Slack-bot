@@ -7,7 +7,6 @@ import re
 from datetime import datetime, timedelta
 import calendar
 from typing import Dict, Any, Optional
-from models.ai.inference import AIInference
 
 class TextParser:
     """
@@ -26,6 +25,11 @@ class TextParser:
     """
     
     def __init__(self, model_paths: Optional[Dict[str, str]] = None):
+        if model_paths:
+            from models.ai.inference import AIInference
+            self.ai_inference = AIInference(model_paths)
+        else:
+            self.ai_inference = None
         # カテゴリーのキーワードマッピング
         self.category_keywords = {
             "数学": ["計算", "数式", "証明", "微分", "積分", "代数", "幾何"],
@@ -40,6 +44,20 @@ class TextParser:
             "高": ["重要", "急ぎ", "必須", "絶対", "今すぐ", "即時"],
             "中": ["なるべく", "できれば", "そろそろ", "近いうち"],
             "低": ["余裕", "時間がある", "ゆっくり"]
+        }
+
+        # 日付パターン
+        self.date_patterns = {
+            "すぐ": 1,
+            "明日": 1,
+            "急いで": 2,
+            "明後日": 2,
+            "なるべく早く": 3,
+            "今週中": 7,
+            "来週": 7,
+            "来週まで": 14,
+            "今月中": 30,
+            "そのうち": 30
         }
 
         # AI推論ベースの初期化
@@ -62,32 +80,91 @@ class TextParser:
             dict: タスク情報を含む辞書（title, due_date, priority, category）
             None: 解析失敗時
         """
+        # テキストの前処理
+        cleaned_text = self._preprocess_text(text)
+        if not cleaned_text:
+            return None
+
+        # 1. ルールベースによる解析
+        rule_based_result = self._rule_based_analysis(cleaned_text)
+        
+        # 2. AIモデルによる解析
+        ai_result = self._ai_based_analysis(cleaned_text)
+        
+        # 3. 結果の統合
+        return self._integrate_results(rule_based_result, ai_result, cleaned_text)
+
+    def _preprocess_text(self, text: str) -> str:
+        """テキストの前処理"""
         # "add "の後ろの文字列を取得
         task_info = text[text.lower().find("add") + 3:].strip() if "add" in text.lower() else text
         
         if not task_info:
             return None
             
-       # 1. ルールベースによる解析
-        rule_based_result = None
-        if "|" in task_info:
-            # フォーマット済みテキストの場合は従来通りの処理
-            return self._parse_formatted_text(task_info)
-        else:
-            # 自然言語の場合はハイブリッド解析
-            rule_based_result = self._parse_natural_text(task_info)
+        # 全角文字の正規化
+        text = task_info.replace('：', ':').replace('、', ',').replace('　', ' ')
+        return text.strip()
 
-        # 2. AI推論による解析（利用可能な場合）
-        ai_result = None
-        if self.ai_inference and not "|" in task_info:
-            try:
-                ai_result = self.ai_inference.analyze_text(task_info)
-            except Exception as e:
-                print(f"AI推論中にエラーが発生しました: {e}")
+    def _rule_based_analysis(self, text: str) -> Dict[str, Any]:
+        """ルールベースによる解析"""
+        # フォーマット済みテキストの場合
+        if "|" in text:
+            return self._parse_formatted_text(text)
             
-        # 3. 結果の統合
-        return self._integrate_results(rule_based_result, ai_result, task_info)
-    
+        # 自然言語テキストの場合
+        result = {
+            "title": None,
+            "due_date": None,
+            "priority": None,
+            "category": None,
+            "confidence": {
+                "title": 0.0,
+                "due_date": 0.0,
+                "priority": 0.0,
+                "category": 0.0
+            }
+        }
+        
+        # 日付の抽出
+        date_info = self._extract_date(text)
+        if date_info:
+            result["due_date"] = date_info["date"]
+            result["confidence"]["due_date"] = date_info["confidence"]
+            text = date_info["remaining_text"]
+
+        # カテゴリの抽出
+        category_info = self._extract_category(text)
+        if category_info:
+            result["category"] = category_info["category"]
+            result["confidence"]["category"] = category_info["confidence"]
+            text = category_info["remaining_text"]
+
+        # 優先度の抽出
+        priority_info = self._extract_priority(text)
+        if priority_info:
+            result["priority"] = priority_info["priority"]
+            result["confidence"]["priority"] = priority_info["confidence"]
+            text = priority_info["remaining_text"]
+
+        # タイトルの生成
+        title_info = self._generate_title(text, result["category"])
+        result["title"] = title_info["title"]
+        result["confidence"]["title"] = title_info["confidence"]
+        
+        return result
+
+    def _ai_based_analysis(self, text: str) -> Optional[Dict[str, Any]]:
+        """AIモデルによる解析"""
+        if not self.ai_inference:
+            return None
+            
+        try:
+            return self.ai_inference.analyze_text(text, detailed=True)
+        except Exception as e:
+            print(f"AI解析エラー: {e}")
+            return None
+
     def _integrate_results(
         self,
         rule_based: Dict[str, Any],
@@ -95,53 +172,68 @@ class TextParser:
         original_text: str
     ) -> Dict[str, Any]:
         """
-        ルールベースとAI推論ベースの結果を統合
+        ルールベースとAI推論の結果を統合し、最適な結果を生成する
         
         Args:
-            rule_based (Dict[str, Any]): ルールベースの結果
-            ai_result (Optional[Dict[str, Any]]): AI推論ベースの結果
-            original_text (str): 元のテキスト
+            rule_based: ルールベースによる解析結果
+            ai_result: AI推論による解析結果（存在しない場合はNone）
+            original_text: 元のテキスト
             
         Returns:
-            Dict[str, Any]: 統合された結果
+            Dict[str, Any]: 統合された最終的なタスク情報
         """
-        # AI結果が利用できない場合はルールベースの結果をそのまま返す
+
+        # 基本となるルールベースの結果をベースに結果を構築
+        result = {
+            "title": rule_based["title"],
+            "due_date": rule_based["due_date"],
+            "priority": rule_based["priority"],
+            "category": rule_based["category"]
+        }
+        
+        # AI結果が存在しない場合は、ルールベースの信頼度をそのまま使用
         if not ai_result:
-            return rule_based
+            result["confidence"] = sum(rule_based["confidence"].values()) / len(rule_based["confidence"])
+            return result
         
-        result = {}
-        
-        # タイトルの設定（ルールベースを優先）
+        # タイトルはルールベースを優先
         result["title"] = rule_based["title"]
-        
+
         # 期限の統合
-        if rule_based["due_date"]:
-            result["due_date"] = rule_based["due_date"]
-        elif ai_result["deadline"]["estimated_days"]:
-            estimated_date = datetime.now() + timedelta(days=ai_result["deadline"]["estimated_days"])
-            result["due_date"] = estimated_date.strftime('%Y-%m-%d')
-        else:
-            result["due_date"] = None
-        
-        # 優先度の統合（ルールベースとAIの信頼度を比較）
-        rule_based_priority = rule_based.get("priority")
-        ai_priority = ai_result["priority"]["level"]
-        ai_confidence = ai_result["priority"]["confidence"]
-        
-        if rule_based_priority:
-            result["priority"] = rule_based_priority
-        elif ai_confidence > 0.7:  # 高信頼度の場合のみAIの結果を採用
-            result["priority"] = ai_priority
-        else:
-            result["priority"] = "中"  # デフォルト
-        
+        # ルールベースで期限が取得できなかった場合のみAIの結果を使用
+        if not result["due_date"] and "deadline" in ai_result:
+            result["due_date"] = ai_result["deadline"]
+
+        # 優先度の統合
+        # ルールベースとAIの信頼度を比較し、より信頼度の高い方を採用
+        rule_priority_confidence = rule_based["confidence"]["priority"]
+        ai_priority_confidence = ai_result.get("priority", {}).get("confidence", 0)
+
+        if ai_priority_confidence > rule_priority_confidence:
+            result["priority"] = ai_result["priority"]
+
         # カテゴリの統合
-        if rule_based["category"]:
-            result["category"] = rule_based["category"]
-        elif ai_result["category"]["confidence"] > 0.8:  # 高信頼度の場合のみ
-            result["category"] = ai_result["category"]["name"]
-        else:
-            result["category"] = None
+        # ルールベースとAIの信頼度を比較し、より信頼度の高い方を採用
+        rule_category_confidence = rule_based["confidence"]["category"]
+        ai_category_confidence = ai_result.get("category", {}).get("confidence", 0)
+
+        if ai_category_confidence > rule_category_confidence:
+            result["category"] = ai_result["category"]
+
+        # 総合的な信頼度の計算
+        # 各要素（タイトル、期限、優先度、カテゴリ）の信頼度の平均を算出
+        confidences = [
+            # タイトルの信頼度
+            rule_based["confidence"]["title"],
+            # 期限の信頼度（ルールベースとAIの高い方を採用）
+            max(rule_based["confidence"]["due_date"], ai_result.get("details", {}).get("deadline", {}).get("confidence", 0)),
+            # 優先度の信頼度（ルールベースとAIの高い方を採用）
+            max(rule_priority_confidence, ai_priority_confidence),
+            # カテゴリの信頼度（ルールベースとAIの高い方を採用）
+            max(rule_category_confidence, ai_category_confidence)
+        ]
+        # 全要素の平均信頼度を計算
+        result["confidence"] = sum(confidences) / len(confidences)
         
         return result
 
@@ -303,6 +395,32 @@ class TextParser:
         text = re.sub(r'\s+', ' ', text)
 
         return text.strip()
+
+    def _generate_title(self, text: str, category: Optional[str]) -> Dict[str, Any]:
+        """タイトル生成処理"""
+        text = self._clean_title_text(text)
+        
+        confidence = 0.7  # 基本的な信頼度
+        
+        if category:
+            if category in text:
+                title = text
+                confidence = 0.9
+            else:
+                title = f"{category}の{text}"
+                confidence = 0.8
+        else:
+            title = text
+        
+        return {
+            "title": title,
+            "confidence": confidence
+        }
+
+    def cleanup(self):
+        """リソースのクリーンアップ"""
+        if self.ai_inference:
+            self.ai_inference.cleanup()
 
     def _extract_date(self, text):
         """
@@ -496,7 +614,26 @@ class TextParser:
             }
         return None
 
-    def _extract_priority(self, text):
+    def _extract_priority_from_days(self, days: int) -> Dict[str, Any]:
+        """
+        期限までの日数から優先度を判定
+        
+        Args:
+            days (int): 期限までの日数
+            
+        Returns:
+            Dict[str, Any]: 優先度情報
+        """
+        if days < 0:
+            return {"priority": "高", "confidence": 0.9}
+        elif days <= 1:
+            return {"priority": "高", "confidence": 0.9}
+        elif days <= 7:
+            return {"priority": "高", "confidence": 0.85}
+        else:
+            return {"priority": "中", "confidence": 0.7}
+
+    def _extract_priority(self, text: str, date_info: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         テキストから優先度を抽出
         
@@ -504,106 +641,82 @@ class TextParser:
         優先度を判定
         
         Args:
-            text (str): 優先度を含むテキスト
+            text (str): 入力テキスト
+            date_info (Optional[Dict[str, Any]]): 日付情報
             
         Returns:
-        dict: {
-                "priority": 優先度,
-                "remaining_text": 残りのテキスト,
-                "confidence": 確信度（0-1）
-            }
+            Dict[str, Any]: 優先度情報
             None: 優先度が見つからない場合
         """
         print(f"\n=== 優先度抽出開始 ===")
         print(f"入力テキスト: {text}")
         
         original_text = text
-        priority_from_keyword = None
-        
-        # キーワードによる優先度判定
-        for priority, keywords in self.priority_keywords.items():
-            matched_keywords = []
-            for keyword in keywords:
-                if keyword in text:
-                    matched_keywords.append(keyword)
-            
-            if matched_keywords:
-                confidence = min(0.8 + (len(matched_keywords) - 1) * 0.1, 1.0)  # キーワード数による信頼度調整
-                priority_from_keyword = {
-                    "priority": priority,
-                    "remaining_text": text,
-                    "confidence": confidence
-                }
-                for kw in matched_keywords:
-                    print(f"キーワード '{kw}' が見つかりました → 優先度: {priority}")
-                break
-        
-        # 期限による優先度推測
-        print("\n期限による優先度判定:")
-        date_info = self._extract_date(text)
-        print(f"抽出された日付情報: {date_info}")
-        
-        if date_info and date_info["date"]:
+        priority_scores = {
+        "高": 0.0,
+        "中": 0.3,  # デフォルトのベーススコア
+        "低": 0.0
+    }
+
+        # 1. 期限による優先度判定
+        if date_info and date_info.get("date"):
             try:
                 deadline = datetime.strptime(date_info["date"], '%Y-%m-%d')
                 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-                days_until_deadline = (deadline - today).days
+                days_until = (deadline - today).days
                 
-                print(f"期限日: {deadline.date()}")
-                print(f"今日: {today.date()}")
-                print(f"期限までの日数: {days_until_deadline}日")
-                
-                 # キーワードによる優先度がある場合はその信頼度を考慮
-                if priority_from_keyword and priority_from_keyword["confidence"] > 0.8:
-                    return priority_from_keyword
-                    
-                # 期限に基づく優先度の判定
-                # 期限切れ
-                if days_until_deadline < 0:
-                    return {
-                        "priority": "高",
-                        "remaining_text": original_text,
-                        "confidence": 0.9
-                    }
-                # 今日または明日
-                elif days_until_deadline <= 1:
-                    return {
-                        "priority": "高",
-                        "remaining_text": original_text,
-                        "confidence": 0.9
-                    }
-                # 1週間以内
-                elif days_until_deadline <= 7:
-                    return {
-                        "priority": "高",
-                        "remaining_text": original_text,
-                        "confidence": 0.85
-                    }
-                # 1週間以上
+                if days_until <= 3:
+                    priority_scores["高"] += 0.4
+                elif days_until <= 7:
+                    priority_scores["中"] += 0.3
                 else:
-                    return {
-                        "priority": "中",
-                        "remaining_text": original_text,
-                        "confidence": 0.7
-                    }
-            except ValueError as e:
+                    priority_scores["低"] += 0.2
+                    
+                print(f"期限による優先度判定:")
+                print(f"抽出された日付情報: {date_info['date']}")
+                print(f"期限までの日数: {days_until}日")
+                
+            except (ValueError, TypeError) as e:
                 print(f"日付処理エラー: {e}")
-                if priority_from_keyword:
-                    return priority_from_keyword
-        else:
-            print("日付情報が見つかりませんでした")
-        
-        # キーワードによる優先度がある場合はそれを返す
-        if priority_from_keyword:
-            print("キーワードによる優先度を使用")
-            return priority_from_keyword
-        
-        print("デフォルトの優先度（低）を設定")
-        # デフォルト値
+            
+        # 2. キーワードによる優先度判定
+        for priority, keywords in self.priority_keywords.items():
+            for keyword in keywords:
+                if keyword in text:
+                    priority_scores[priority] += 0.4
+                    text = text.replace(keyword, "")
+                    print(f"キーワード「{keyword}」により{priority}優先度を加算")
+
+        # 3. AIモデルによる優先度判定
+        if self.ai_inference:
+            try:
+                ai_result = self.ai_inference.estimate_priority(text)
+                if ai_result["confidence"] > 0.3:
+                    priority_scores[ai_result["priority"]] += ai_result["confidence"] * 0.3
+                    print(f"AI推論により{ai_result['priority']}優先度を加算（信頼度: {ai_result['confidence']}）")
+            except Exception as e:
+                print(f"AI推論エラー: {e}")
+
+        # 最終的な優先度を決定
+        best_priority = max(priority_scores.items(), key=lambda x: x[1])
+        final_priority = best_priority[0]
+        confidence = best_priority[1]
+
+        # 信頼度が低い場合はデフォルト値を使用
+        if confidence < 0.3:
+            final_priority = "中"
+            confidence = 0.3
+
+        print(f"\n最終判定:")
+        print(f"優先度: {final_priority}")
+        print(f"信頼度: {confidence}")
+        print(f"各優先度のスコア: {priority_scores}")
+
         return {
-            "priority": "低",
+            "priority": final_priority,
             "remaining_text": original_text,
-            "confidence": 0.5  # デフォルトは低信頼度
+            "confidence": confidence,
+            "scores": priority_scores
         }
     
     @staticmethod
@@ -641,4 +754,3 @@ class TextParser:
         """
         valid_priorities = ["高", "中", "低"]
         return priority in valid_priorities
-    
