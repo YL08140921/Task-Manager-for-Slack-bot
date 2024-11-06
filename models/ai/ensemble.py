@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from .embeddings.word2vec_model import Word2VecModel
 from .embeddings.fasttext_model import FastTextModel
 from .embeddings.laser_model import LaserModel
+from models.task import Task
 
 class EnsembleModel:
     """複数の埋め込みモデルを組み合わせたアンサンブルモデル"""
@@ -20,30 +21,12 @@ class EnsembleModel:
         self.model_status = {}
         
         # デフォルトの重み設定
-        self.weights = weights or {
-            'word2vec': 0.3,
-            'fasttext': 0.3,
-            'laser': 0.4
-        }
+        default_weights = {k.lower(): v for k, v in Task.CONFIDENCE["MODEL_WEIGHTS"].items()}
+        self.weights = weights or default_weights
         
         # モデルの初期化（遅延ロード）
         self.model_paths = model_paths
         self.model_status = {name: False for name in ['word2vec', 'fasttext', 'laser']}
-        
-        # 参照テキストの定義
-        self.category_references = {
-            "数学": "数式 計算 証明 定理 微分 積分",
-            "統計学": "確率 分布 推定 検定 標本",
-            "機械学習": "モデル 学習 予測 分類",
-            "理論": "概念 定義 公理 法則",
-            "プログラミング": "コード 実装 開発 デバッグ"
-        }
-        
-        self.priority_references = {
-            "高": "緊急 重要 即時 必須",
-            "中": "通常 標準 普通",
-            "低": "余裕 後回し 緩い"
-        }
 
     def _load_model(self, model_name: str) -> bool:
         """モデルの遅延ロード"""
@@ -77,13 +60,17 @@ class EnsembleModel:
                 except Exception as e:
                     self.logger.warning(f"{model_name}での類似度計算エラー: {str(e)}")
         
-        return sum(similarities) / total_weight if similarities else 0.0
+        if not total_weight:
+            self.logger.warning("有効なモデルがありません。フォールバック値を返します。")
+            return 0.5  # デフォルトの信頼度を返す
+        
+        return sum(similarities) / total_weight if similarities else 0.0 # 0.0 ~ 1.0の範囲
 
     def estimate_category(self, text: str) -> Dict[str, Any]:
         """カテゴリを推定"""
         similarities = {
-            category: self.get_similarity(text, reference)
-            for category, reference in self.category_references.items()
+            category: self.get_similarity(text, " ".join(keywords))
+            for category, keywords in Task.CATEGORY_KEYWORDS.items()
         }
         
         if not similarities:
@@ -99,12 +86,13 @@ class EnsembleModel:
     def estimate_priority(self, text: str) -> Dict[str, Any]:
         """優先度を推定"""
         similarities = {
-            priority: self.get_similarity(text, reference)
-            for priority, reference in self.priority_references.items()
+            Task.PRIORITY_HIGH: self.get_similarity(text, " ".join(Task.PRIORITY_KEYWORDS[Task.PRIORITY_HIGH])),
+            Task.PRIORITY_MEDIUM: self.get_similarity(text, " ".join(Task.PRIORITY_KEYWORDS[Task.PRIORITY_MEDIUM])),
+            Task.PRIORITY_LOW: self.get_similarity(text, " ".join(Task.PRIORITY_KEYWORDS[Task.PRIORITY_LOW]))
         }
         
         if not similarities:
-            return {"priority": "中", "confidence": 0.0}
+            return {"priority": "低", "confidence": 0.0}
             
         best_priority = max(similarities.items(), key=lambda x: x[1])
         return {
@@ -129,7 +117,7 @@ class EnsembleModel:
         )
         similarity = self.get_similarity(text, best_pattern[0])
         
-        if similarity > 0.3:
+        if similarity > Task.CONFIDENCE["THRESHOLD"]:
             deadline_date = datetime.now() + timedelta(days=best_pattern[1])
             return {
                 "deadline": deadline_date.strftime('%Y-%m-%d'),

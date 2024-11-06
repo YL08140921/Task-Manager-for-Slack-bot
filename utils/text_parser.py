@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import calendar
 from typing import Dict, Any, Optional
 from models.ai.inference import AIInference
+from models.task import Task
 
 class TextParser:
     """テキスト解析クラス"""
@@ -16,22 +17,8 @@ class TextParser:
             model_paths (Optional[Dict[str, str]]): AIモデルのファイルパスを含む辞書
         """
         # カテゴリー判定用のキーワード辞書
-        # 各カテゴリーに関連する重要な単語をリスト化
-        self.category_keywords = {
-            "数学": ["計算", "数式", "証明", "微分", "積分"],
-            "統計学": ["統計", "確率", "分布", "標本", "検定"],
-            "機械学習": ["ML", "AI", "学習", "モデル", "予測"],
-            "理論": ["理論", "原理", "定理", "公理", "法則"],
-            "プログラミング": ["コード", "プログラム", "開発", "実装"]
-        }
-        
-        # 優先度判定用のキーワード辞書
-        # 優先度を示す表現をレベル別にグループ化
-        self.priority_keywords = {
-            "高": ["重要", "急ぎ", "必須", "絶対", "今すぐ"],
-            "中": ["なるべく", "できれば", "そろそろ"],
-            "低": ["余裕", "ゆっくり"]
-        }
+        self.category_keywords = Task.CATEGORY_KEYWORDS
+        self.priority_keywords = Task.PRIORITY_KEYWORDS
 
         # AI推論の初期化
         self.ai_inference = None
@@ -94,7 +81,7 @@ class TextParser:
 
         # タイトルの設定
         result["title"] = self._clean_title_text(text)
-        result["confidence"]["title"] = 0.8  # 基本的な信頼度
+        result["confidence"]["title"] = Task.CONFIDENCE["TITLE"]  # 基本的な信頼度
 
         return result
 
@@ -200,7 +187,7 @@ class TextParser:
                 if date_match:
                     try:
                         date_str, confidence = handler(date_match)
-                        # 期限表現がある場合は信頼度を上げる
+                        # 期限表現がある場合は信頼度を0.1上乗せ
                         confidence = min(confidence + 0.1, 1.0)
                         return {
                             "date": date_str,
@@ -229,12 +216,15 @@ class TextParser:
     def _extract_category(self, text: str) -> Optional[Dict[str, Any]]:
         """カテゴリの推定"""
         best_category = None
-        max_confidence = 0
+        max_confidence = Task.CONFIDENCE["BASE"]
         
         for category, keywords in self.category_keywords.items():
             matches = sum(1 for keyword in keywords if keyword in text)
             if matches:
-                confidence = min(0.5 + matches * 0.1, 1.0)
+                confidence = min(
+                    Task.CONFIDENCE["BASE"] + matches * Task.CONFIDENCE["INCREMENT"],
+                    Task.CONFIDENCE["MAX"]
+                )
                 if confidence > max_confidence:
                     max_confidence = confidence
                     best_category = category
@@ -264,7 +254,7 @@ class TextParser:
         """
         # 基本的な優先度キーワードチェック
         best_priority = None
-        max_confidence = 0
+        max_confidence = Task.CONFIDENCE["BASE"]
 
         # 日付ベースの優先度判定
         date_based_priority = None
@@ -275,7 +265,12 @@ class TextParser:
         for priority, keywords in self.priority_keywords.items():
             matches = sum(1 for keyword in keywords if keyword in text)
             if matches:
-                confidence = min(0.5 + matches * 0.1, 1.0)
+                # キーワードマッチングベースの信頼度計算（カテゴリと優先度で共通）
+                # 基準値0.5 + マッチ数×0.1（上限1.0）
+                confidence = min(
+                    Task.CONFIDENCE["BASE"] + matches * Task.CONFIDENCE["INCREMENT"],
+                    Task.CONFIDENCE["MAX"]
+                )
                 if confidence > max_confidence:
                     max_confidence = confidence
                     best_priority = priority
@@ -283,53 +278,37 @@ class TextParser:
         # 日付ベースの優先度と通常の優先度を統合
         if date_based_priority and (not best_priority or date_based_priority["confidence"] > max_confidence):
             return date_based_priority
-        else:
+        elif best_priority:
             return {
                 "priority": best_priority,
                 "confidence": max_confidence
             }
-        return {"priority": "低", "confidence": 0.5}  # デフォルト
+        return {"priority": "低", "confidence": Task.CONFIDENCE["BASE"]}  # デフォルト
 
     def _get_date_based_priority(self, date_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """日付情報から優先度を判定"""
-        today = datetime.now().date()
+        """
+        日付情報から優先度を判定
         
-        # 日付文字列をdatetimeオブジェクトに変換
-        if isinstance(date_info.get("date"), str):
-            try:
-                target_date = datetime.strptime(date_info["date"], "%Y-%m-%d").date()
-            except ValueError:
-                return None
-        else:
+        Args:
+            date_info (Dict[str, Any]): 日付情報を含む辞書
+            
+        Returns:
+            Optional[Dict[str, Any]]: 優先度情報。日付が無効な場合はNone
+        """
+        if not isinstance(date_info.get("date"), str):
             return None
-
-        # 日付に基づく優先度判定ルール
-        days_until = (target_date - today).days
-        
-        if days_until <= 1:  # 今日または明日
-            return {
-                "priority": "高",
-                "confidence": 0.9,
-                "reason": "期限が切迫"
-            }
-        elif days_until <= 3:  # 2-3日以内
-            return {
-                "priority": "高",
-                "confidence": 0.8,
-                "reason": "期限が近い"
-            }
-        elif days_until <= 7:  # 1週間以内
-            return {
-                "priority": "中",
-                "confidence": 0.7,
-                "reason": "期限が中程度"
-            }
-        else:  # 1週間以上
-            return {
-                "priority": "低",
-                "confidence": 0.6,
-                "reason": "期限に余裕あり"
-            }
+            
+        try:
+            target_date = datetime.strptime(date_info["date"], "%Y-%m-%d").date()
+            days_until = (target_date - datetime.now().date()).days
+            
+            priority_info = Task.get_priority_from_days(days_until)
+            # reasonフィールドを追加
+            priority_info["reason"] = priority_info.pop("urgency")
+            return priority_info
+            
+        except ValueError:
+            return None
 
     def _clean_title_text(self, text: str) -> str:
         """タイトルテキストのクリーニング"""
@@ -414,7 +393,7 @@ class TextParser:
             )
         }
 
-        # 総合的な信頼度の計算
+        # 各要素の信頼度を比較して高い方を採用
         confidences = [
             rule_based["confidence"].get("title", 0),
             max(
@@ -430,6 +409,7 @@ class TextParser:
                 ai_result.get("confidence", 0)
             )
         ]
+        # 最終的な信頼度は平均値
         result["confidence"] = sum(confidences) / len(confidences)
 
         return result
