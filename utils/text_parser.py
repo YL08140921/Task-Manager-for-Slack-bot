@@ -177,39 +177,37 @@ class TextParser:
             )
         }
 
-        # 期限表現とパターンの組み合わせを検索
-        for pattern, handler in patterns.items():
-            # 期限表現を含むパターンを作成
-            combined_pattern = f'({pattern}.*?{deadline_patterns}|{deadline_patterns}.*?{pattern})'
-            match = re.search(combined_pattern, text)
-            if match:
-                date_match = re.search(pattern, match.group())
-                if date_match:
-                    try:
-                        date_str, confidence = handler(date_match)
-                        # 期限表現がある場合は信頼度を0.1上乗せ
-                        confidence = min(confidence + 0.1, 1.0)
-                        return {
-                            "date": date_str,
-                            "confidence": confidence,
-                            "remaining_text": text[:match.start()] + text[match.end():]
-                        }
-                    except ValueError:
-                        continue
-
-        # 期限表現がない場合は通常のパターンマッチング
-        for pattern, handler in patterns.items():
+        def try_pattern_match(pattern: str, text: str, handler: callable) -> Optional[Dict[str, Any]]:
+            """パターンマッチを試行"""
             match = re.search(pattern, text)
             if match:
                 try:
-                    date_str, confidence = handler(match)
+                    date_str, base_confidence = handler(match)
                     return {
                         "date": date_str,
-                        "confidence": confidence,
+                        "confidence": base_confidence,
                         "remaining_text": text[:match.start()] + text[match.end():]
                     }
                 except ValueError:
-                    continue
+                    return None
+            return None
+
+        # まず期限表現を検索
+        deadline_match = re.search(deadline_patterns, text)
+        if deadline_match:
+            # 期限表現がある場合、各パターンを試行
+            for pattern, handler in patterns.items():
+                result = try_pattern_match(pattern, text, handler)
+                if result:
+                    # 期限表現があれば信頼度を上昇
+                    result["confidence"] = min(result["confidence"] + 0.1, 1.0)
+                    return result
+
+        # 期限表現がない場合は通常のパターンマッチング
+        for pattern, handler in patterns.items():
+            result = try_pattern_match(pattern, text, handler)
+            if result:
+                return result
 
         return None
 

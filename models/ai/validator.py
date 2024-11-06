@@ -100,13 +100,15 @@ class ResultValidator:
             result["title"] = "無題のタスク"
         
         # 期限のバリデーション
+        due_date_value = None
         if due_date := rule_based.get("due_date"):
-            try:
-                datetime.strptime(due_date, "%Y-%m-%d")
-                result["due_date"] = due_date
-            except ValueError:
-                self.logger.warning(f"無効な期限フォーマット: {due_date}")
-                result["due_date"] = None
+          try:
+              datetime.strptime(due_date, "%Y-%m-%d")
+              due_date_value = due_date
+          except ValueError:
+              self.logger.warning(f"無効な期限フォーマット: {due_date}")
+
+        result["due_date"] = due_date_value
         
         # 優先度のバリデーション（Task.pyの定義を利用）
         priority = (
@@ -142,17 +144,11 @@ class ResultValidator:
         
         選択ロジック:
         1. タイトルは常にルールベースを優先
-        2. 期限はルールベースを優先、なければAIの結果を使用
+        2. 期限はルールベースを優先（_validate_basic_fieldsで検証済み）、なければAIの結果を使用
         3. カテゴリと優先度は信頼度の高い方を採用
         """
         # タイトルは常にルールベースを優先
         validated["title"] = rule_based.get("title", validated["title"])
-        
-        # 期限はルールベースを優先
-        validated["due_date"] = (
-            rule_based.get("due_date") or
-            ai_result.get("deadline") if ai_result else None
-        )
         
         # カテゴリと優先度は信頼度の高い方を採用
         rule_confidence = rule_based.get("confidence", {})
@@ -188,22 +184,30 @@ class ResultValidator:
         try:
             deadline = datetime.strptime(due_date, "%Y-%m-%d").date()
             days_until = (deadline - datetime.now().date()).days
+
+            # 期限切れの場合は即座に警告を生成
+            if days_until < 0:
+              return {
+                  "priority": Task.PRIORITY_HIGH,
+                  "warnings": [
+                      f"⚠️ 期限切れ（{abs(days_until)}日経過）のため、"
+                      f"優先度を「{current_priority}」から「{Task.PRIORITY_HIGH}」に変更しました"
+                  ]
+              }
             
             # Task.pyのurgency_levelsを利用
             for level, info in self.urgency_levels.items():
-                if days_until <= info["days"]:
-                    suggested_priority = info["priority"]
-                    confidence = info["confidence"]
-                    
-                    if suggested_priority != current_priority:
-                        return {
-                            "priority": suggested_priority,
-                            "warnings": [
-                                f"⚠️ {level}のため、優先度を「{current_priority}」"
-                                f"から「{suggested_priority}」に調整しました"
-                            ]
-                        }
-                    break
+              if days_until <= info["days"]:
+                  suggested_priority = info["priority"]
+                  if suggested_priority != current_priority:
+                      return {
+                          "priority": suggested_priority,
+                          "warnings": [
+                              f"⚠️ {level}（残り{days_until}日）のため、"
+                              f"優先度を「{current_priority}」から「{suggested_priority}」に調整しました"
+                          ]
+                      }
+                  break
             
             return {
                 "priority": current_priority,
@@ -236,8 +240,20 @@ class ResultValidator:
             try:
                 deadline = datetime.strptime(due_date, "%Y-%m-%d").date()
                 days_until = (deadline - datetime.now().date()).days
+
+                # 期限切れの場合
+                if days_until < 0:
+                    warnings.append(
+                        f"⚠️ このタスクは期限切れです（{abs(days_until)}日経過）"
+                    )
                 
-                # Taskクラスのurgency_levelsを利用した判定
+                # 期限が近い場合
+                elif days_until <= 3:  # 3日以内を期限が近いと定義
+                    warnings.append(
+                        f"⚠️ 期限が近づいています（残り{days_until}日）"
+                    )
+                
+                # 優先度の整合性チェック
                 for level, info in self.urgency_levels.items():
                     if days_until <= info["days"]:
                         if data.get("priority") != info["priority"]:
