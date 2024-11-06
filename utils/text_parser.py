@@ -345,74 +345,35 @@ class TextParser:
         ai_result: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
-        ルールベースとAI分析の結果を統合するメソッド
+        ルールベースとAI分析の結果を統合
+        validator.pyの検証層を使用して結果を検証・統合する
         
-        統合ロジック：
-        1. AIの結果がない場合はルールベースの結果のみを使用
-        2. タイトルはルールベースを優先
-        3. 期限はルールベースを優先、ない場合はAIの結果を使用
-        4. カテゴリと優先度は信頼度の高い方を採用
-        
-        信頼度の計算：
-        - 各要素（タイトル、期限、優先度、カテゴリ）の信頼度の平均
-        - AIとルールベースで高い方の信頼度を採用
+        Args:
+        rule_based: ルールベースの解析結果
+        ai_result: AI推論の結果（オプション）
         
         Returns:
-            {
+            Dict[str, Any]: {
                 "title": str,
                 "due_date": str,
                 "priority": str,
                 "category": str,
-                "confidence": float
+                "confidence": float,
+                "warnings": List[str]  # 警告メッセージのリスト
             }
         """
-        if not ai_result:
-            # AIの結果がない場合はルールベースの結果を使用
-            confidence = sum(rule_based["confidence"].values()) / len(rule_based["confidence"])
-            return {
-                "title": rule_based["title"],
-                "due_date": rule_based["due_date"],
-                "priority": rule_based["priority"],
-                "category": rule_based["category"],
-                "confidence": confidence
-            }
-
-        # AIの結果と統合
-        result = {
-            "title": rule_based["title"],  # タイトルはルールベースを優先
-            "due_date": rule_based["due_date"] or ai_result.get("deadline"),
-            "category": (
-                rule_based["category"]
-                if rule_based["confidence"].get("category", 0) > ai_result["confidence"]
-                else ai_result["category"]
-            ),
-            "priority": (
-                rule_based["priority"]
-                if rule_based["confidence"].get("priority", 0) > ai_result["confidence"]
-                else ai_result["priority"]
+        # ResultValidatorを使用して結果を検証・統合
+        validator = ResultValidator()
+        validated_result = validator.validate_results(rule_based, ai_result)
+        
+        # 検証結果のログ（デバッグ用）
+        if validated_result.get("warnings"):
+            self.logger.debug(
+                "検証による警告:\n%s",
+                "\n".join(validated_result["warnings"])
             )
-        }
-
-        # 各要素の信頼度を比較して高い方を採用
-        confidences = [
-            rule_based["confidence"].get("title", 0),
-            max(
-                rule_based["confidence"].get("due_date", 0),
-                ai_result.get("confidence", 0)
-            ),
-            max(
-                rule_based["confidence"].get("priority", 0),
-                ai_result.get("confidence", 0)
-            ),
-            max(
-                rule_based["confidence"].get("category", 0),
-                ai_result.get("confidence", 0)
-            )
-        ]
-        # 最終的な信頼度は平均値
-        result["confidence"] = sum(confidences) / len(confidences)
-
-        return result
+        
+        return validated_result
 
     def cleanup(self):
         """リソースの解放"""
