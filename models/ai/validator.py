@@ -92,6 +92,12 @@ class ResultValidator:
         """
         result = {}
         
+        # デバッグ: 入力値の確認
+        self.logger.debug(
+            "入力値: rule_based=%s, ai_result=%s",
+            rule_based, ai_result
+        )
+        
         # タイトルのバリデーション（必須項目）
         if rule_based.get("title"):
             result["title"] = rule_based["title"]
@@ -109,29 +115,90 @@ class ResultValidator:
               self.logger.warning(f"無効な期限フォーマット: {due_date}")
 
         result["due_date"] = due_date_value
+
+        # 優先度のバリデーション
+        priority = rule_based.get("priority")
+        self.logger.debug(f"初期優先度: {priority}")
+        self.logger.debug(
+            f"Task優先度定数: HIGH={Task.PRIORITY_HIGH}, "
+            f"MEDIUM={Task.PRIORITY_MEDIUM}, LOW={Task.PRIORITY_LOW}"
+        )
+
+        # 優先度の変換マッピング（定数変更対応）
+        priority_mapping = {
+            "高": Task.PRIORITY_HIGH,
+            "中": Task.PRIORITY_MEDIUM,
+            "低": Task.PRIORITY_LOW,
+            "緊急": Task.PRIORITY_HIGH,
+            "通常": Task.PRIORITY_MEDIUM,
+            "低め": Task.PRIORITY_LOW,
+            # 逆マッピングも追加
+            Task.PRIORITY_HIGH: Task.PRIORITY_HIGH,
+            Task.PRIORITY_MEDIUM: Task.PRIORITY_MEDIUM,
+            Task.PRIORITY_LOW: Task.PRIORITY_LOW
+        }
+
+        # タイトルからの優先度推定
+        if result["title"]:
+            title_lower = result["title"].lower()
+            for priority_level, keywords in Task.PRIORITY_KEYWORDS.items():
+                if any(keyword in title_lower for keyword in keywords):
+                    priority = priority_level
+                    self.logger.debug(f"タイトルから優先度検出: {priority}")
+                    break
+
+        # 優先度の決定ロジック
+        if priority:
+            priority = priority_mapping.get(priority, Task.PRIORITY_MEDIUM)
+            self.logger.debug(f"優先度マッピング変換: {priority}")
+        elif ai_result and ai_result.get("priority"):
+            priority = priority_mapping.get(ai_result["priority"], Task.PRIORITY_MEDIUM)
+            self.logger.debug(f"AI優先度採用: {priority}")
+        else:
+            priority = Task.PRIORITY_MEDIUM
+            self.logger.debug(f"デフォルト優先度採用: {priority}")
+
+        # 現在の定数に基づいて検証
+        valid_priorities = {Task.PRIORITY_HIGH, Task.PRIORITY_MEDIUM, Task.PRIORITY_LOW}
+        self.logger.debug(f"有効な優先度: {valid_priorities}")
         
-        # 優先度のバリデーション（Task.pyの定義を利用）
-        priority = (
-            rule_based.get("priority") or
-            (ai_result.get("priority") if ai_result else None) or
-            Task.PRIORITY_MEDIUM
+        result["priority"] = (
+            priority if priority in valid_priorities
+            else Task.PRIORITY_MEDIUM
         )
-        result["priority"] = priority if priority in [
-            Task.PRIORITY_HIGH,
-            Task.PRIORITY_MEDIUM,
-            Task.PRIORITY_LOW
-        ] else Task.PRIORITY_MEDIUM
+        self.logger.debug(f"最終優先度: {result['priority']}")
+
+        # カテゴリのバリデーション
+        category = None
+        self.logger.debug(f"カテゴリ検証開始: title={rule_based.get('title')}")
+
+        # 1. ルールベースのカテゴリを最優先で確認
+        if rule_based.get("category") in Task.VALID_CATEGORIES:
+            category = rule_based["category"]
+            self.logger.debug(f"ルールベースのカテゴリを採用: {category}")
         
-        # カテゴリのバリデーション（Task.pyの定義を利用）
-        category = (
-            rule_based.get("category") or
-            (ai_result.get("category") if ai_result else None)
-        )
-        result["category"] = (
-            category if category in Task.VALID_CATEGORIES else None
-        )
+        # 2. タイトルからカテゴリを推定
+        elif rule_based.get("title"):
+            title_lower = rule_based["title"].lower()
+            self.logger.debug(f"タイトルからカテゴリ推定: {title_lower}")
+            
+            for cat, keywords in Task.CATEGORY_KEYWORDS.items():
+                # キーワードを小文字に変換して比較
+                if any(keyword.lower() in title_lower for keyword in keywords):
+                    category = cat
+                    self.logger.debug(f"キーワードマッチ成功: カテゴリ={cat}")
+                    break
+
+        # 3. AIのカテゴリを確認
+        elif ai_result and ai_result.get("category") in Task.VALID_CATEGORIES:
+            category = ai_result["category"]
+            self.logger.debug(f"AIカテゴリを採用: {category}")
+
+        self.logger.debug(f"最終カテゴリ: {category}")
+        result["category"] = category
         
         return result
+
     
     def _select_high_confidence_results(
         self,
