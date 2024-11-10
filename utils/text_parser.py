@@ -4,6 +4,8 @@ import calendar
 from typing import Dict, Any, Optional
 from models.ai.inference import AIInference
 from models.task import Task
+from models.ai.validator import ResultValidator
+import logging
 
 class TextParser:
     """テキスト解析クラス"""
@@ -16,6 +18,8 @@ class TextParser:
         Args:
             model_paths (Optional[Dict[str, str]]): AIモデルのファイルパスを含む辞書
         """
+        self.logger = logging.getLogger(__name__)
+        
         # カテゴリー判定用のキーワード辞書
         self.category_keywords = Task.CATEGORY_KEYWORDS
         self.priority_keywords = Task.PRIORITY_KEYWORDS

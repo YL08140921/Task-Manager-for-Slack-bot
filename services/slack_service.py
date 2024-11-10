@@ -43,7 +43,7 @@ class SlackService:
         """
         self.app = App(token=config.slack_bot_token)
         self.notion_service = notion_service
-        self.text_parser = TextParser()
+        self.text_parser = TextParser(config.model_paths)
         self.setup_handlers()
 
     def setup_handlers(self):
@@ -118,35 +118,35 @@ class SlackService:
             text (str): コマンドテキスト
             say: メッセージ送信関数
         """
-        # 1. 入力解析
-        command, args = self._parse_command(text)
-        
-        # 2. コマンド処理
-        if not command:
-            self._show_help(say)
-            return
-            
         try:
-            if command == "add":
-                self._handle_add(args, say)
-            elif command == "list":
-                self._handle_list(args, say)
-            elif command == "update":
-                self._handle_update(args, say)
-            elif command == "help":
+            # 1. 入力解析
+            command, args = self._parse_command(text)
+            
+            # 2. コマンド処理
+            if not command:
                 self._show_help(say)
-            elif command == "search":
-                self._handle_search(args, say)
-            elif command == "priority":
-                self._handle_priority_filter(args, say)
-            elif command == "category":
-                self._handle_category_filter(args, say)
-            elif command == "overdue":
-                self._handle_overdue(say)
+                return
+            
+            handlers = {
+                "add": self._handle_add,
+                "list": self._handle_list,
+                "update": self._handle_update,
+                "help": self._show_help,
+                "search": self._handle_search,
+                "priority": self._handle_priority_filter,
+                "category": self._handle_category_filter,
+                "overdue": self._handle_overdue
+            }
+
+            handler = handlers.get(command)
+            if handler:
+                handler(args, say)
             else:
                 say(f"申し訳ありません。「{command}」は未知のコマンドです。")
+
         except Exception as e:
-            say(f"申し訳ありません。コマンドの実行中にエラーが発生しました: {str(e)}")
+            say(f"⚠️ エラーが発生しました: {str(e)}\n処理を中止します。")
+            logging.error(f"コマンド処理エラー: {str(e)}", exc_info=True)
 
     def _parse_command(self, text):
         """
@@ -199,12 +199,15 @@ class SlackService:
                 "例2: add 数学の課題 明日まで")
             return
             
-        # タスク情報の解析
+        # タスク情報の解析（AIと検証層を含む）
         task_info = self.text_parser.parse_task_info(args)
         
         if not task_info or not task_info["title"]:
             say("タスクの追加に必要な情報が不足しています。")
             return
+            
+        # 警告メッセージの確認
+        warnings = task_info.get("warnings", [])
             
         # Taskオブジェクトの作成
         task = Task(

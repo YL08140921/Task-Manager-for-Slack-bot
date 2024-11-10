@@ -27,7 +27,7 @@ class Config:
         # デフォルトのモデルパス
         default_paths = {
             'word2vec': str(self.pretrained_dir / "word2vec" / "japanese.model"),
-            'fasttext': str(self.pretrained_dir / "fasttext" / "japanese.bin"),
+            'fasttext': str(self.pretrained_dir / "fasttext" / "cc.ja.300.bin"),
             'laser': str(self.pretrained_dir / "laser")
         }
         
