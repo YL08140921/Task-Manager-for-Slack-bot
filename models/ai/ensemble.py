@@ -90,40 +90,41 @@ class EnsembleModel:
                 "scores": {}
             }
             
-        # 信頼度閾値を超えるカテゴリを全て抽出（スコアの高い順にソート）
-        threshold = Task.CONFIDENCE["THRESHOLD"]
-        matched_categories = [
-            category for category, score in sorted(
-                similarities.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )
-            if score > threshold
-        ]
-
-        # テキストに直接含まれるカテゴリを検出
+        # テキストに直接含まれるカテゴリを優先的に検出
         explicit_categories = [
             category for category in Task.VALID_CATEGORIES
             if category in text or 
             any(keyword in text for keyword in Task.CATEGORY_KEYWORDS[category])
         ]
-        
-        # 結果をマージ（重複を除去）
-        final_categories = list(dict.fromkeys(matched_categories + explicit_categories))
 
-        # 最大3つのカテゴリに制限
-        final_categories = final_categories[:3]
+        # 明示的なカテゴリがある場合はそれを使用
+        if explicit_categories:
+            final_categories = explicit_categories[:3]  # 最大3つまで
+        else:
+            # 明示的なカテゴリがない場合は類似度による推定を使用
+            threshold = Task.CONFIDENCE["THRESHOLD"]
+            high_similarity_categories = [
+                category for category, score in sorted(
+                    similarities.items(),
+                    key=lambda x: x[1],
+                    reverse=True
+                )
+                if score > threshold
+            ]
+            # 類似度による推定は最大2つまで
+            final_categories = high_similarity_categories[:2]
+            
+            # カテゴリが全く見つからない場合のフォールバック
+            if not final_categories:
+                best_category = max(similarities.items(), key=lambda x: x[1])[0]
+                final_categories = [best_category]
 
-        # カテゴリが全く見つからない場合のフォールバック
-        if not final_categories:
-            best_category = max(similarities.items(), key=lambda x: x[1])[0]
-            final_categories = [best_category]
-        
         return {
             "categories": final_categories,
             "confidence": max(similarities.values()) if similarities else 0.0,
             "scores": similarities
         }
+
 
     def estimate_priority(self, text: str) -> Dict[str, Any]:
         """優先度を推定"""
