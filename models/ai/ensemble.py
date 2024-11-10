@@ -90,10 +90,14 @@ class EnsembleModel:
                 "scores": {}
             }
             
-        # 信頼度閾値を超えるカテゴリを全て抽出
+        # 信頼度閾値を超えるカテゴリを全て抽出（スコアの高い順にソート）
         threshold = Task.CONFIDENCE["THRESHOLD"]
         matched_categories = [
-            category for category, score in similarities.items()
+            category for category, score in sorted(
+                similarities.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
             if score > threshold
         ]
 
@@ -104,27 +108,13 @@ class EnsembleModel:
             any(keyword in text for keyword in Task.CATEGORY_KEYWORDS[category])
         ]
         
-        # 新しいカテゴリの検出（既存カテゴリに含まれない単語）
-        words = set(text.split())
-        known_words = set()
-        for keywords in Task.CATEGORY_KEYWORDS.values():
-            known_words.update(keywords)
-        
-        new_categories = [
-            word for word in words
-            if (len(word) > 1 and  # 1文字の単語は除外
-                word not in known_words and
-                not any(word in keywords for keywords in Task.CATEGORY_KEYWORDS.values()))
-        ]
-        
-        # 全ての結果をマージ
-        final_categories = list(set(matched_categories + explicit_categories))
-        
-        # 新しいカテゴリを追加（既存のカテゴリが見つかった場合のみ）
-        if final_categories and new_categories:
-            final_categories.extend(new_categories)
+        # 結果をマージ（重複を除去）
+        final_categories = list(dict.fromkeys(matched_categories + explicit_categories))
 
-        # 7. カテゴリが全く見つからない場合のフォールバック
+        # 最大3つのカテゴリに制限
+        final_categories = final_categories[:3]
+
+        # カテゴリが全く見つからない場合のフォールバック
         if not final_categories:
             best_category = max(similarities.items(), key=lambda x: x[1])[0]
             final_categories = [best_category]

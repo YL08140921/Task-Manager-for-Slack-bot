@@ -231,22 +231,6 @@ class TextParser:
                 if confidence >= Task.CONFIDENCE["THRESHOLD"]:
                     matched_categories.append(category)
                     max_confidence = max(max_confidence, confidence)
-
-        # 新しいカテゴリの検出
-        words = set(text.split())
-        known_words = set()
-        for keywords in self.category_keywords.values():
-            known_words.update(keywords)
-        
-        new_categories = [
-            word for word in words
-            if (len(word) > 1 and
-                word not in known_words and
-                not any(word in keywords for keywords in self.category_keywords.values()))
-        ]
-        
-        if new_categories:
-            matched_categories.extend(new_categories)
         
         if matched_categories:
             return {
@@ -385,16 +369,24 @@ class TextParser:
         validator = ResultValidator()
         validated_result = validator.validate_results(rule_based, ai_result)
 
-        # カテゴリ形式の統一
-        if "category" in validated_result:
-            validated_result["categories"] = [validated_result.pop("category")] if validated_result["category"] else []
+        # カテゴリの統合
+        categories = set()
         
-        # 検証結果のログ（デバッグ用）
-        if validated_result.get("warnings"):
-            self.logger.debug(
-                "検証による警告:\n%s",
-                "\n".join(validated_result["warnings"])
-            )
+        # ルールベースのカテゴリを追加
+        if rule_based.get("categories"):
+            categories.update(rule_based["categories"])
+        
+        # AI推論のカテゴリを追加
+        if ai_result and "categories" in ai_result:
+            # 有効なカテゴリのみを追加
+            ai_categories = [
+                cat for cat in ai_result["categories"]
+                if cat in Task.VALID_CATEGORIES
+            ]
+            categories.update(ai_categories)
+    
+        # 結果の更新
+        validated_result["categories"] = list(categories)
         
         return validated_result
 
