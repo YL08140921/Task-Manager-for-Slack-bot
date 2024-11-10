@@ -60,7 +60,7 @@ class TextParser:
             "title": None,
             "due_date": None,
             "priority": None,
-            "category": None,
+            "categories": [],
             "confidence": {}
         }
 
@@ -74,7 +74,7 @@ class TextParser:
         # カテゴリの推定
         category_info = self._extract_category(text)
         if category_info:
-            result["category"] = category_info["category"]
+            result["categories"] = category_info["categories"]
             result["confidence"]["category"] = category_info["confidence"]
 
         # 日付情報を考慮した優先度の推定
@@ -217,9 +217,10 @@ class TextParser:
 
     def _extract_category(self, text: str) -> Optional[Dict[str, Any]]:
         """カテゴリの推定"""
-        best_category = None
+        matched_categories = []
         max_confidence = Task.CONFIDENCE["BASE"]
         
+        # 既存カテゴリのキーワードマッチング
         for category, keywords in self.category_keywords.items():
             matches = sum(1 for keyword in keywords if keyword in text)
             if matches:
@@ -227,13 +228,29 @@ class TextParser:
                     Task.CONFIDENCE["BASE"] + matches * Task.CONFIDENCE["INCREMENT"],
                     Task.CONFIDENCE["MAX"]
                 )
-                if confidence > max_confidence:
-                    max_confidence = confidence
-                    best_category = category
+                if confidence >= Task.CONFIDENCE["THRESHOLD"]:
+                    matched_categories.append(category)
+                    max_confidence = max(max_confidence, confidence)
 
-        if best_category:
+        # 新しいカテゴリの検出
+        words = set(text.split())
+        known_words = set()
+        for keywords in self.category_keywords.values():
+            known_words.update(keywords)
+        
+        new_categories = [
+            word for word in words
+            if (len(word) > 1 and
+                word not in known_words and
+                not any(word in keywords for keywords in self.category_keywords.values()))
+        ]
+        
+        if new_categories:
+            matched_categories.extend(new_categories)
+        
+        if matched_categories:
             return {
-                "category": best_category,
+                "categories": matched_categories,
                 "confidence": max_confidence
             }
         return None
@@ -367,6 +384,10 @@ class TextParser:
         # ResultValidatorを使用して結果を検証・統合
         validator = ResultValidator()
         validated_result = validator.validate_results(rule_based, ai_result)
+
+        # カテゴリ形式の統一
+        if "category" in validated_result:
+            validated_result["categories"] = [validated_result.pop("category")] if validated_result["category"] else []
         
         # 検証結果のログ（デバッグ用）
         if validated_result.get("warnings"):

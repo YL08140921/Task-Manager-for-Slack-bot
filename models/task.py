@@ -15,7 +15,7 @@ class Task:
         title (str): タスクのタイトル
         due_date (str): 期限日（YYYY-MM-DD形式）
         priority (str): 優先度（高/中/低）
-        category (str): カテゴリ
+        categories (str): カテゴリ
         status (str): 状態（未着手/進行中/完了）
         description (str): タスクの詳細説明
         created_at (str): 作成日時
@@ -34,9 +34,19 @@ class Task:
     
     # 優先度定義
     PRIORITY_KEYWORDS = {
-        PRIORITY_HIGH: ["重要", "急ぎ", "必須", "絶対", "今すぐ"],
-        PRIORITY_MEDIUM: ["なるべく", "できれば", "そろそろ"],
-        PRIORITY_LOW: ["余裕", "ゆっくり"]
+        PRIORITY_HIGH: [
+            "重要", "急ぎ", "必須", "絶対", "今すぐ",
+            "かなり", "急いで", "やばい", "早く",
+            "至急", "即時", "緊急"
+        ],
+        PRIORITY_MEDIUM: [
+            "なるべく", "できれば", "そろそろ",
+            "準備", "確認", "検討"
+        ],
+        PRIORITY_LOW: [
+            "余裕", "ゆっくり", "暇なとき",
+            "時間があれば", "後で"
+        ]
     }
 
     # 信頼度の定数定義
@@ -58,9 +68,9 @@ class Task:
 
         # AIモデルの重み付け
         "MODEL_WEIGHTS": {
-            "LASER": 0.4,    # 多言語対応と文脈理解が強い
+            "LASER": 0.5,    # 多言語対応と文脈理解が強い
             "WORD2VEC": 0.3, # 基本的な単語の意味理解
-            "FASTTEXT": 0.3  # 部分文字列の処理が得意
+            "FASTTEXT": 0.2  # 部分文字列の処理が得意
         }
     }
 
@@ -95,7 +105,7 @@ class Task:
     }
     VALID_CATEGORIES = list(CATEGORY_KEYWORDS.keys())
 
-    def __init__(self, title, due_date=None, priority=None, category=None, status="未着手", description=None):
+    def __init__(self, title, due_date=None, priority=None, categories=None, status="未着手", description=None):
         """
         タスクの初期化
         
@@ -103,19 +113,19 @@ class Task:
             title (str): タスクのタイトル
             due_date (str, optional): 期限日（YYYY-MM-DD形式）
             priority (str, optional): 優先度（高/中/低）
-            category (str, optional): カテゴリ
+            categories (list, optional): カテゴリのリスト
             status (str, optional): 状態（デフォルト: 未着手）
             description (str, optional): タスクの詳細説明
         """
         self.title = title
         self._due_date = None
-        self.due_date = due_date  # プロパティを通して設定
+        self.due_date = due_date  
         self._priority = None
-        self.priority = priority  # プロパティを通して設定
-        self._category = None
-        self.category = category  # プロパティを通して設定
+        self.priority = priority  
+        self._categories = []
+        self.categories = categories or []
         self._status = None
-        self.status = status  # プロパティを通して設定
+        self.status = status  
         self.description = description
         self.created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.updated_at = self.created_at
@@ -179,14 +189,38 @@ class Task:
         self._priority = value
 
     @property
-    def category(self):
-        return self._category
+    def categories(self):
+        """カテゴリリストを取得"""
+        return self._categories
 
-    @category.setter
-    def category(self, value):
-        if value and value not in self.VALID_CATEGORIES:
-            raise ValueError(f"カテゴリは {', '.join(self.VALID_CATEGORIES)} のいずれかを指定してください")
-        self._category = value
+    @categories.setter
+    def categories(self, value):
+        """
+        カテゴリを設定
+        
+        Args:
+            value (str or list): カテゴリまたはカテゴリのリスト
+            
+        Raises:
+            ValueError: 無効なカテゴリが指定された場合
+        """
+        if value is None:
+            self._categories = []
+            return
+
+        # 文字列の場合はリストに変換
+        if isinstance(value, str):
+            value = [value]
+            
+        # カテゴリの検証
+        invalid_categories = [cat for cat in value if cat not in self.VALID_CATEGORIES]
+        if invalid_categories:
+            raise ValueError(
+                f"無効なカテゴリが指定されました: {', '.join(invalid_categories)}\n"
+                f"有効なカテゴリ: {', '.join(self.VALID_CATEGORIES)}"
+            )
+            
+        self._categories = value
 
     @property
     def status(self):
@@ -219,8 +253,11 @@ class Task:
         if self.priority:
             properties["優先度"] = {"select": {"name": self.priority}}
             
-        if self.category:
-            properties["分野"] = {"select": {"name": self.category}}
+        if self.categories:
+            # 複数カテゴリに対応
+            properties["分野"] = {
+                "multi_select": [{"name": category} for category in self.categories]
+            }
             
         if self.description:
             properties["詳細"] = {"rich_text": [{"text": {"content": self.description}}]}
@@ -295,8 +332,8 @@ class Task:
             details.append(f"優先度: {self.priority}")
         if self.due_date:
             details.append(f"期限: {self.due_date}({urgency})")
-        if self.category:
-            details.append(f"分野: {self.category}")
+        if self.categories:
+            details.append(f"分野: {', '.join(self.categories)}")
             
         if details:
             base += "\n  " + " | ".join(details)

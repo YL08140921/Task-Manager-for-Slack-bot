@@ -25,23 +25,51 @@ class AIInference:
     def analyze_text(self, text: str, detailed: bool = False) -> Dict[str, Any]:
         """テキストの総合的な分析を実行"""
         try:
-            self.logger.info(f"テキスト分析開始: {text}")
+            self.logger.info(f"\n=== テキスト分析開始 ===")
+            self.logger.info(f"入力テキスト: {text}")
             
-            # 各要素の推定
+            # カテゴリ推定
+            self.logger.info("\n--- カテゴリ推定 ---")
             category_info = self.ensemble.estimate_category(text)
+            self.logger.info(f"検出カテゴリ: {category_info['categories']}")
+            self.logger.info(f"カテゴリごとの類似度:")
+            for category, score in category_info.get("scores", {}).items():
+                self.logger.info(f"  - {category}: {score:.3f}")
+            self.logger.info(f"カテゴリ推定の信頼度: {category_info['confidence']:.3f}")
+
+            # 優先度推定
+            self.logger.info("\n--- 優先度推定 ---")
             priority_info = self.ensemble.estimate_priority(text)
+            self.logger.info(f"判定された優先度: {priority_info['priority']}")
+            self.logger.info(f"優先度ごとの類似度:")
+            for priority, score in priority_info.get("scores", {}).items():
+                self.logger.info(f"  - {priority}: {score:.3f}")
+            self.logger.info(f"優先度推定の信頼度: {priority_info['confidence']:.3f}")
+
+            # 期限推定
+            self.logger.info("\n--- 期限推定 ---")
             deadline_info = self.ensemble.estimate_deadline(text)
+            if deadline_info.get("deadline"):
+                self.logger.info(f"推定された期限: {deadline_info['deadline']}")
+                self.logger.info(f"マッチしたパターン: {deadline_info.get('matched_pattern')}")
+                self.logger.info(f"期限までの日数: {deadline_info.get('days')}日")
+            else:
+                self.logger.info("期限は指定されていません")
+            self.logger.info(f"期限推定の信頼度: {deadline_info.get('confidence', 0):.3f}")
+
+            # 総合結果の構築
+            confidence = self._calculate_confidence([
+                category_info["confidence"],
+                priority_info["confidence"],
+                deadline_info.get("confidence", 0)
+            ])
             
             # 結果の構築
             result = {
-                "category": category_info["category"],
+                "categories": category_info["categories"],
                 "priority": priority_info["priority"],
                 "deadline": deadline_info.get("deadline"),
-                "confidence": self._calculate_confidence([
-                    category_info["confidence"],
-                    priority_info["confidence"],
-                    deadline_info.get("confidence", 0)
-                ])
+                "confidence": confidence
             }
             
             if detailed:
@@ -50,11 +78,18 @@ class AIInference:
                     "priority": priority_info,
                     "deadline": deadline_info
                 }
+
+            self.logger.info("\n=== 分析結果 ===")
+            self.logger.info(f"カテゴリ: {result['categories']}")
+            self.logger.info(f"優先度: {result['priority']}")
+            self.logger.info(f"期限: {result['deadline'] or '指定なし'}")
+            self.logger.info(f"総合信頼度: {confidence:.3f}")
             
             return result
             
         except Exception as e:
-            self.logger.error(f"テキスト分析エラー: {str(e)}")
+            self.logger.error(f"テキスト分析エラー")
+            self.logger.error(f"エラー内容: {str(e)}")
             return self._get_fallback_result()
 
     def _calculate_confidence(self, scores: list) -> float:
@@ -64,7 +99,7 @@ class AIInference:
     def _get_fallback_result(self) -> Dict[str, Any]:
         """エラー時のフォールバック結果"""
         return {
-            "category": None,
+            "categories": [], 
             "priority": "中",
             "deadline": None,
             "confidence": 0.0,

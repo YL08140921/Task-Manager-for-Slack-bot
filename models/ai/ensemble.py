@@ -67,19 +67,71 @@ class EnsembleModel:
         return sum(similarities) / total_weight if similarities else 0.0 # 0.0 ~ 1.0の範囲
 
     def estimate_category(self, text: str) -> Dict[str, Any]:
-        """カテゴリを推定"""
+        """
+        カテゴリを推定
+        
+        Returns:
+            Dict[str, Any]: {
+                "categories": List[str],  # 検出されたカテゴリのリスト
+                "confidence": float,      # 全体の信頼度
+                "scores": Dict[str, float] # 各カテゴリの類似度スコア
+            }
+        """
+        # 既存のカテゴリとの類似度計算
         similarities = {
             category: self.get_similarity(text, " ".join(keywords))
             for category, keywords in Task.CATEGORY_KEYWORDS.items()
         }
         
         if not similarities:
-            return {"category": None, "confidence": 0.0}
+            return {
+                "categories": [],
+                "confidence": 0.0,
+                "scores": {}
+            }
             
-        best_category = max(similarities.items(), key=lambda x: x[1])
+        # 信頼度閾値を超えるカテゴリを全て抽出
+        threshold = Task.CONFIDENCE["THRESHOLD"]
+        matched_categories = [
+            category for category, score in similarities.items()
+            if score > threshold
+        ]
+
+        # テキストに直接含まれるカテゴリを検出
+        explicit_categories = [
+            category for category in Task.VALID_CATEGORIES
+            if category in text or 
+            any(keyword in text for keyword in Task.CATEGORY_KEYWORDS[category])
+        ]
+        
+        # 新しいカテゴリの検出（既存カテゴリに含まれない単語）
+        words = set(text.split())
+        known_words = set()
+        for keywords in Task.CATEGORY_KEYWORDS.values():
+            known_words.update(keywords)
+        
+        new_categories = [
+            word for word in words
+            if (len(word) > 1 and  # 1文字の単語は除外
+                word not in known_words and
+                not any(word in keywords for keywords in Task.CATEGORY_KEYWORDS.values()))
+        ]
+        
+        # 全ての結果をマージ
+        final_categories = list(set(matched_categories + explicit_categories))
+        
+        # 新しいカテゴリを追加（既存のカテゴリが見つかった場合のみ）
+        if final_categories and new_categories:
+            final_categories.extend(new_categories)
+
+        # 7. カテゴリが全く見つからない場合のフォールバック
+        if not final_categories:
+            best_category = max(similarities.items(), key=lambda x: x[1])[0]
+            final_categories = [best_category]
+        
         return {
-            "category": best_category[0],
-            "confidence": best_category[1],
+            "categories": final_categories,
+            "confidence": max(similarities.values()) if similarities else 0.0,
             "scores": similarities
         }
 

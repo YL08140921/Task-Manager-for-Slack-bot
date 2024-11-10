@@ -8,6 +8,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 from utils.text_parser import TextParser
 from models.task import Task
 import re
+import logging
 from datetime import datetime, timedelta
 
 class SlackService:
@@ -208,31 +209,37 @@ class SlackService:
             
         # 警告メッセージの確認
         warnings = task_info.get("warnings", [])
+
+        try:
             
-        # Taskオブジェクトの作成
-        task = Task(
-            title=task_info["title"],
-            due_date=task_info["due_date"],
-            priority=task_info["priority"],
-            category=task_info["category"]
-        )
-        
-        # タスクの追加
-        result = self.notion_service.add_task(task)
-        
-        # 応答の生成
-        if result["success"]:
-            response = [
-                f"✅ {result['message']}",
-                "タスクの詳細:",
-                str(task)
-            ]
-            if task.due_date and task.days_until_due() <= 3:
-                response.append("\n⚠️ このタスクは緊急度が高いです！")
-        else:
-            response = [f"❌ {result['message']}"]
+            # Taskオブジェクトの作成
+            task = Task(
+                title=task_info["title"],
+                due_date=task_info["due_date"],
+                priority=task_info["priority"],
+                categories=task_info["categories"]
+            )
             
-        say("\n".join(response))
+            # タスクの追加
+            result = self.notion_service.add_task(task)
+            
+            # 応答の生成
+            if result["success"]:
+                response = [
+                    f"✅ {result['message']}",
+                    "タスクの詳細:",
+                    str(task)
+                ]
+                if task.due_date and task.days_until_due() <= 3:
+                    response.append("\n⚠️ このタスクは緊急度が高いです！")
+            else:
+                response = [f"❌ {result['message']}"]
+                
+            say("\n".join(response))
+
+        except Exception as e:
+            say(f"⚠️ タスクの作成中にエラーが発生しました: {str(e)}")
+            logging.error(f"タスク作成エラー: {str(e)}", exc_info=True)
 
     def _handle_list(self, args, say):
         """
@@ -322,7 +329,7 @@ class SlackService:
             say(f"カテゴリは {', '.join(Task.VALID_CATEGORIES)} のいずれかを指定してください。")
             return
             
-        filters = {"category": args}
+        filters = {"categories": args}
         result = self.notion_service.list_tasks(filters)
         
         if result["success"]:
