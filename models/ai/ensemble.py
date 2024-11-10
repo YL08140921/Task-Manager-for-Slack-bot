@@ -1,10 +1,11 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
 import logging
 from datetime import datetime, timedelta
 from .embeddings.word2vec_model import Word2VecModel
 from .embeddings.fasttext_model import FastTextModel
 from .embeddings.laser_model import LaserModel
+from gensim.models import KeyedVectors
 from models.task import Task
 
 class EnsembleModel:
@@ -45,6 +46,126 @@ class EnsembleModel:
         except Exception as e:
             self.logger.error(f"{model_name}モデルの読み込みに失敗: {str(e)}")
             return False
+
+    def generate_title(self, text: str) -> Dict[str, Any]:
+        """
+        テキストからタスクタイトルを生成
+        
+        Args:
+            text (str): 入力テキスト
+            
+        Returns:
+            Dict[str, Any]: タイトル情報
+        """
+        try:
+            # MeCabで形態素解析を実行
+            words = self._tokenize_with_pos(text)
+            
+            # 不要な表現を除去
+            filtered_words = []
+            for word, pos in words:
+                # 時間表現を除去
+                if word in ['今日', '明日', '明後日', '今週', '来週', '今月']:
+                    continue
+                # 助詞・助動詞を除去
+                if pos.startswith(('助詞', '助動詞')):
+                    continue
+                # 動詞の基本形を除去
+                if pos.startswith('動詞') and word in ['する', 'やる', '行う', '実施']:
+                    continue
+                # その他の不要語を除去
+                if word in ['必要', '予定', 'こと', 'もの', 'ため']:
+                    continue
+                    
+                filtered_words.append((word, pos))
+
+            # 重要度計算
+            word_scores = {}
+            for word, pos in filtered_words:
+                # 品詞による重み付け
+                base_weight = {
+                    '名詞': 1.0,
+                    '形容詞': 0.8,
+                    '副詞': 0.6
+                }.get(pos.split('-')[0], 0.4)
+                
+                # Word2Vecによる類似度計算
+                try:
+                    similarities = []
+                    for other_word, _ in filtered_words:
+                        if word != other_word:
+                            sim = self.get_similarity(word, other_word)
+                            similarities.append(sim)
+                    
+                    if similarities:
+                        avg_similarity = sum(similarities) / len(similarities)
+                        # 品詞の重みと類似度を組み合わせる
+                        word_scores[word] = avg_similarity * base_weight
+                    else:
+                        word_scores[word] = base_weight * 0.5
+                        
+                except KeyError:
+                    word_scores[word] = base_weight * 0.5
+
+            if not word_scores:
+                return {"title": text[:50], "confidence": 0.3}
+
+            # スコアに基づいて重要な単語を抽出
+            max_score = max(word_scores.values())
+            threshold = max_score * 0.6  # 閾値を60%に設定
+            
+            # 重要な単語を位置順に並べ替え
+            important_words = []
+            for word, _ in filtered_words:
+                if word in word_scores and word_scores[word] >= threshold:
+                    important_words.append(word)
+
+            # タイトルの生成
+            title = "".join(important_words)
+            
+            # タイトルが空の場合のフォールバック
+            if not title:
+                return {"title": text[:50], "confidence": 0.3}
+                
+            # タイトルの長さ制限
+            if len(title) > 50:
+                title = title[:47] + "..."
+
+            return {
+                "title": title,
+                "confidence": max_score,
+                "word_scores": word_scores
+            }
+
+        except Exception as e:
+            self.logger.error(f"タイトル生成エラー: {str(e)}")
+            return {"title": text[:50], "confidence": 0.3}
+
+    def _tokenize_with_pos(self, text: str) -> List[Tuple[str, str]]:
+        """
+        テキストを形態素解析し、単語と品詞のペアのリストを返す
+        
+        Args:
+            text (str): 入力テキスト
+            
+        Returns:
+            List[Tuple[str, str]]: (単語, 品詞)のリスト
+        """
+        try:
+            import MeCab
+            mecab = MeCab.Tagger("-Ochasen")
+            node = mecab.parseToNode(text)
+            
+            results = []
+            while node:
+                if node.surface:  # 空文字列でない場合
+                    results.append((node.surface, node.feature.split(',')[0]))
+                node = node.next
+                
+            return results
+        except Exception as e:
+            self.logger.error(f"形態素解析エラー: {str(e)}")
+            return [(text, '名詞')]  # フォールバック
 
     def get_similarity(self, text1: str, text2: str) -> float:
         """テキスト間の類似度を計算"""

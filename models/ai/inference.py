@@ -27,6 +27,12 @@ class AIInference:
         try:
             self.logger.info(f"\n=== テキスト分析開始 ===")
             self.logger.info(f"入力テキスト: {text}")
+
+            # タイトル生成を追加
+            self.logger.info("\n--- タイトル生成 ---")
+            title_info = self.ensemble.generate_title(text)
+            self.logger.info(f"生成タイトル: {title_info['title']}")
+            self.logger.info(f"タイトル生成の信頼度: {title_info['confidence']:.3f}")
             
             # カテゴリ推定
             self.logger.info("\n--- カテゴリ推定 ---")
@@ -59,6 +65,7 @@ class AIInference:
 
             # 総合結果の構築
             confidence = self._calculate_confidence([
+                title_info["confidence"],
                 category_info["confidence"],
                 priority_info["confidence"],
                 deadline_info.get("confidence", 0)
@@ -66,6 +73,7 @@ class AIInference:
             
             # 結果の構築
             result = {
+                "title": title_info["title"],
                 "categories": category_info["categories"],
                 "priority": priority_info["priority"],
                 "deadline": deadline_info.get("deadline"),
@@ -74,12 +82,14 @@ class AIInference:
             
             if detailed:
                 result["details"] = {
+                    "title": title_info,
                     "category": category_info,
                     "priority": priority_info,
                     "deadline": deadline_info
                 }
 
             self.logger.info("\n=== 分析結果 ===")
+            self.logger.info(f"タイトル: {result['title']}")
             self.logger.info(f"カテゴリ: {result['categories']}")
             self.logger.info(f"優先度: {result['priority']}")
             self.logger.info(f"期限: {result['deadline'] or '指定なし'}")
@@ -91,6 +101,17 @@ class AIInference:
             self.logger.error(f"テキスト分析エラー")
             self.logger.error(f"エラー内容: {str(e)}")
             return self._get_fallback_result()
+    
+    def _get_fallback_result(self) -> Dict[str, Any]:
+        """エラー時のフォールバック結果"""
+        return {
+            "title": "",
+            "categories": [], 
+            "priority": "中",
+            "deadline": None,
+            "confidence": 0.0,
+            "error": True
+        }
 
     def _calculate_confidence(self, scores: list) -> float:
         """信頼度スコアの計算"""

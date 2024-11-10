@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timedelta
 import calendar
+import numpy as np
 from typing import Dict, Any, Optional
 from models.ai.inference import AIInference
 from models.task import Task
@@ -34,28 +35,63 @@ class TextParser:
 
     def parse_task_info(self, text: str) -> Optional[Dict[str, Any]]:
         """タスク情報の抽出"""
-        cleaned_text = self._preprocess_text(text)
+        self.logger.debug(f"=== parse_task_info開始 ===")
+        self.logger.debug(f"入力テキスト: {text}")
+
+        original_text = text
+
+        # 前処理（期限関連の表現は保持）
+        cleaned_text = self._preprocess_text(text, preserve_datetime=True)
+        self.logger.debug(f"前処理後テキスト: {cleaned_text}")
+
         if not cleaned_text:
             return None
 
-        # ルールベース解析
-        rule_based_result = self._rule_based_analysis(cleaned_text)
-        
-        # AI解析
-        ai_result = self._ai_analysis(cleaned_text)
-        
-        # 結果の統合
-        return self._integrate_results(rule_based_result, ai_result)
+         # AI解析
+        ai_result = self._ai_analysis(original_text) if self.ai_inference else None
+        self.logger.debug(f"AI解析結果: {ai_result}")
 
-    def _preprocess_text(self, text: str) -> Optional[str]:
+        # ルールベース解析
+        rule_based_result = self._rule_based_analysis(original_text, ai_result)
+        self.logger.debug(f"ルールベース解析結果: {rule_based_result}")
+
+        # 結果の統合
+        final_result = self._integrate_results(rule_based_result, ai_result)
+        self.logger.debug(f"統合結果: {final_result}")
+        self.logger.debug("=== parse_task_info終了 ===\n")
+
+        return final_result
+
+    def _preprocess_text(self, text: str, preserve_datetime: bool = False) -> Optional[str]:
         """テキストの前処理"""
+        self.logger.debug(f"=== テキスト前処理開始 ===")
+        self.logger.debug(f"処理前: {text}")
+        
         if not text:
             return None
-        text = text.replace('：', ':').replace('、', ',').replace('　', ' ')
-        return text.strip()
 
-    def _rule_based_analysis(self, text: str) -> Dict[str, Any]:
-        """ルールベースによる解析"""
+        # 全角文字の置換
+        text = text.replace('：', ':').replace('、', ',').replace('　', ' ')
+        self.logger.debug(f"文字置換後: {text}")
+
+        if not preserve_datetime:
+            # 日時表現を削除（preserve_datetimeがFalseの場合のみ）
+            text = re.sub(r'(今日|明日|明後日|今週|来週)(まで|までに)?', '', text)
+
+        # 前後の空白を削除
+        cleaned_text = text.strip()
+        self.logger.debug(f"前処理後: {cleaned_text}")
+        self.logger.debug("=== テキスト前処理終了 ===\n")
+        
+        return cleaned_text
+
+    def _rule_based_analysis(self, text: str, ai_result: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        ルールベースによる解析
+        Args:
+            text (str): 入力テキスト
+            ai_result (Optional[Dict[str, Any]], optional): 既存のAI分析結果
+        """
         result = {
             "title": None,
             "due_date": None,
@@ -84,8 +120,18 @@ class TextParser:
             result["confidence"]["priority"] = priority_info["confidence"]
 
         # タイトルの設定
-        result["title"] = self._clean_title_text(text)
-        result["confidence"]["title"] = Task.CONFIDENCE["TITLE"]  # 基本的な信頼度
+        if ai_result and "title" in ai_result:
+            result["title"] = ai_result["title"]
+            # confidenceが数値の場合の対応
+            if isinstance(ai_result.get("confidence"), (float, int, np.float64, np.int64)):
+                result["confidence"]["title"] = float(ai_result["confidence"])
+            else:
+                # 従来の辞書形式の場合
+                result["confidence"]["title"] = ai_result.get("confidence", {}).get("title", Task.CONFIDENCE["TITLE"])
+        else:
+            # AI結果がない場合はルールベースでタイトル生成
+            result["title"] = self._clean_title_text(text)
+            result["confidence"]["title"] = Task.CONFIDENCE["TITLE"]
 
         return result
 
@@ -314,23 +360,69 @@ class TextParser:
             return None
 
     def _clean_title_text(self, text: str) -> str:
-        """タイトルテキストのクリーニング"""
-        # 不要な表現の削除
+        """
+        タイトルテキストのクリーニング
+        AIモデルとルールベースのハイブリッドアプローチを使用
+        
+        Args:
+            text (str): 入力テキスト
+            
+        Returns:
+            str: クリーニングされたタイトル
+        """
+        self.logger.debug(f"=== タイトルクリーニング開始 ===")
+        self.logger.debug(f"クリーニング前: {text}")
+
+        # ルールベースでの処理
         patterns = [
+            # 期限関連
+            r'明日|今日中に|至急|緊急|までに',
+            
+            # 必要性や状態を示す表現
+            r'(する必要|しなければ|する予定|したい)がある',
+            r'が必要|を要する',
+            
+            # 一般的な助詞と補助動詞
             r'(について|における|に関する)',
-            r'(の|を|に|へ|で|から|まで)',
+            r'(を|に|へ|で|から|まで)',
             r'(する|します|やる|行う)',
-            r'(必要|予定|こと)',
-            r'(です|ます|である)'
+            r'(です|ます|である)',
+            
+            # 余分な表現
+            r'必要|予定|こと',
         ]
         
         cleaned_text = text
         for pattern in patterns:
+            before_clean = cleaned_text
             cleaned_text = re.sub(pattern, ' ', cleaned_text)
+            if before_clean != cleaned_text:
+                self.logger.debug(f"パターン '{pattern}' 適用後: {cleaned_text}")
         
         # 複数の空白を1つに整理
         cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
-        return cleaned_text.strip()
+        self.logger.debug(f"空白整理後: {cleaned_text}")
+        
+        # 前後の空白を削除
+        cleaned_text = cleaned_text.strip()
+        self.logger.debug(f"前後空白削除後: {cleaned_text}")
+        
+        # 「〜の」で終わる場合、「の」を削除
+        if cleaned_text.endswith('の'):
+            cleaned_text = cleaned_text[:-1]
+            self.logger.debug(f"末尾「の」削除後: {cleaned_text}")
+        
+        # 文末の「提出」などの一般的な動詞を削除
+        if cleaned_text.endswith(('提出', '作成', '実施', '実行')):
+            cleaned_text = cleaned_text[:-2]
+            self.logger.debug(f"末尾動詞削除後: {cleaned_text}")
+        
+        # 最終的なタイトルの整形（例：「統計学 レポート」→「統計学レポート」）
+        final_title = cleaned_text.replace(' ', '')
+        self.logger.debug(f"最終タイトル: {final_title}")
+        self.logger.debug("=== タイトルクリーニング終了 ===\n")
+        
+        return final_title
 
     def _ai_analysis(self, text: str) -> Optional[Dict[str, Any]]:
         """AI分析の実行"""
