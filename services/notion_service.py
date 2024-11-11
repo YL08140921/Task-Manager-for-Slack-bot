@@ -15,18 +15,37 @@ class NotionService:
             # バリデーション
             self._validate_task(task)
             
-            # Notionページの作成
+            # Notionプロパティの構築
+            properties = {
+                "タスク名": {"title": [{"text": {"content": task.title}}]},
+                "ステータス": {"status": {"name": task.status}},
+                "優先度": {"select": {"name": task.priority}} if task.priority else None,
+                # 複数カテゴリに対応
+                "分野": {
+                    "multi_select": [
+                        {"name": category} 
+                        for category in (task.categories or [])
+                    ]
+                },
+                "期限": {"date": {"start": task.due_date}} if task.due_date else None,
+                "詳細": {"rich_text": [{"text": {"content": task.description or ""}}]}
+            }
+            
+            # Nullの項目を削除
+            properties = {k: v for k, v in properties.items() if v is not None}
+            
+            # データベースにタスクを追加
             response = self.client.pages.create(
                 parent={"database_id": self.database_id},
-                properties=task.to_notion_properties()
+                properties=properties
             )
-            
+
             return {
                 "success": True,
                 "message": f"タスクを追加しました：{task.title}",
                 "task": task
             }
-            
+
         except ValueError as ve:
             return {
                 "success": False,
@@ -198,6 +217,9 @@ class NotionService:
             
         if task.description and len(task.description) > 1000:
             raise ValueError("詳細は1000文字以内にしてください")
+        
+        if task.categories and not isinstance(task.categories, list):
+            raise ValueError("categoriesはリスト形式である必要があります")
 
     def _build_filters(self, filters):
         """フィルター条件の構築"""
@@ -209,8 +231,11 @@ class NotionService:
         if "status" in filters:
             conditions.append({"property": "ステータス", "status": {"equals": filters["status"]}})
             
-        if "category" in filters:
-            conditions.append({"property": "分野", "select": {"equals": filters["category"]}})
+        if "categories" in filters:
+            conditions.append({
+                "property": "分野",
+                "multi_select": {"contains": filters["categories"]}  # multi_selectに変更
+            })
             
         if "priority" in filters:
             conditions.append({"property": "優先度", "select": {"equals": filters["priority"]}})
@@ -242,14 +267,19 @@ class NotionService:
         status = props["ステータス"]["status"]["name"] if "ステータス" in props else Task.STATUS_NOT_STARTED
         priority = props["優先度"]["select"]["name"] if "優先度" in props and props["優先度"]["select"] else None
         due_date = props["期限"]["date"]["start"] if "期限" in props and props["期限"]["date"] else None
-        category = props["分野"]["select"]["name"] if "分野" in props and props["分野"]["select"] else None
+
+        # 複数カテゴリの取得
+        categories = []
+        if "分野" in props and props["分野"]["multi_select"]:
+            categories = [item["name"] for item in props["分野"]["multi_select"]]
+
         description = props["詳細"]["rich_text"][0]["text"]["content"] if "詳細" in props and props["詳細"]["rich_text"] else None
         
         return Task(
             title=title,
             due_date=due_date,
             priority=priority,
-            category=category,
+            categories=categories,
             status=status,
             description=description
         )

@@ -1,1 +1,18 @@
+# Python
+__pycache__/
+*/__pycache__/
+*.py[cod]
+
+# 仮想環境
+venv/
+./venv/*
+ENV/
+
+# 環境変数
 .env
+
+# OS
+.DS_Store
+
+models/ai/pretrained/
+logs/*
