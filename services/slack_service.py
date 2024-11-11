@@ -7,9 +7,12 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from utils.text_parser import TextParser
 from models.task import Task
+from typing import Dict, Any, Tuple
 import re
 import logging
 from datetime import datetime, timedelta
+from models.chat_module import ChatModule
+
 
 class SlackService:
     """
@@ -46,6 +49,9 @@ class SlackService:
         self.notion_service = notion_service
         self.text_parser = TextParser(config.model_paths)
         self.setup_handlers()
+
+        # 授業で指定されたもの
+        self.chat_module = ChatModule()
 
     def setup_handlers(self):
         """
@@ -120,30 +126,36 @@ class SlackService:
             say: メッセージ送信関数
         """
         try:
-            # 1. 入力解析
-            command, args = self._parse_command(text)
+            # タスク管理コマンドの判定
+            if text.startswith(tuple(self.COMMANDS.keys())) or any(keyword in text for keyword in ["タスク", "課題", "予定"]):
+                # 1. 入力解析
+                command, args = self._parse_command(text)
+                
+                # 2. コマンド処理
+                if not command:
+                    self._show_help(say)
+                    return
             
-            # 2. コマンド処理
-            if not command:
-                self._show_help(say)
-                return
-            
-            handlers = {
-                "add": self._handle_add,
-                "list": self._handle_list,
-                "update": self._handle_update,
-                "help": self._show_help,
-                "search": self._handle_search,
-                "priority": self._handle_priority_filter,
-                "category": self._handle_category_filter,
-                "overdue": self._handle_overdue
-            }
+                handlers = {
+                    "add": self._handle_add,
+                    "list": self._handle_list,
+                    "update": self._handle_update,
+                    "help": self._show_help,
+                    "search": self._handle_search,
+                    "priority": self._handle_priority_filter,
+                    "category": self._handle_category_filter,
+                    "overdue": self._handle_overdue
+                }
 
-            handler = handlers.get(command)
-            if handler:
-                handler(args, say)
+                handler = handlers.get(command)
+                if handler:
+                    handler(args, say)
+                else:
+                    say(f"申し訳ありません。「{command}」は未知のコマンドです。")
             else:
-                say(f"申し訳ありません。「{command}」は未知のコマンドです。")
+                # チャットモードの処理
+                response = self.chat_module.get_response(text)
+                say(response)
 
         except Exception as e:
             say(f"⚠️ エラーが発生しました: {str(e)}\n処理を中止します。")
@@ -380,6 +392,8 @@ class SlackService:
             "2. `add 明日までに数学のレポートを提出`",
             "3. `list 未着手`",
             "4. `update レポート作成 完了`"
+            "5. `こんにちは`（チャット）",
+            "6. `今日はいい天気ですね`（チャット）"
         ]
         
         say("\n".join(help_text))
