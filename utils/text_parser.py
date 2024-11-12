@@ -224,7 +224,14 @@ class TextParser:
             ),
             r'来週の(月|火|水|木|金|土|日)曜日': lambda m: (
                 (datetime.now() + timedelta(days=self._get_days_until_weekday(m.group(1)) + 7)).strftime('%Y-%m-%d'), 0.9
-            )
+            ),
+            # 今週/来週のパターン
+            r'今週中': lambda m: (
+                (datetime.now() + timedelta(days=5-datetime.now().weekday())).strftime('%Y-%m-%d'), 0.8
+            ),
+            r'来週中': lambda m: (
+                (datetime.now() + timedelta(days=12-datetime.now().weekday())).strftime('%Y-%m-%d'), 0.8
+            ),
         }
 
         def try_pattern_match(pattern: str, text: str, handler: callable) -> Optional[Dict[str, Any]]:

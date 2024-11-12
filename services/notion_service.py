@@ -14,6 +14,10 @@ class NotionService:
         try:
             # バリデーション
             self._validate_task(task)
+
+            # 期限に基づく優先度の動的計算
+            dynamic_priority = self._calculate_dynamic_priority(task)
+            task.priority = dynamic_priority
             
             # Notionプロパティの構築
             properties = {
@@ -158,7 +162,7 @@ class NotionService:
             }
 
     def update_task_status(self, task_title, new_status):
-        """タスクのステータスを更新（エラーハンドリング強化）"""
+        """タスクのステータスを更新"""
         try:
             # ステータスの検証
             if not Task.validate_status(new_status):
@@ -186,7 +190,7 @@ class NotionService:
                 
             # タスクの更新
             page_id = response["results"][0]["id"]
-            self.client.pages.update(
+            updated_page =self.client.pages.update(
                 page_id=page_id,
                 properties={
                     "ステータス": {"status": {"name": new_status}},
@@ -197,7 +201,7 @@ class NotionService:
             return {
                 "success": True,
                 "message": f"タスク「{task_title}」のステータスを「{new_status}」に更新しました",
-                "task": self._convert_notion_to_task(response["results"][0])
+                "task": self._convert_notion_to_task(updated_page)
             }
             
         except Exception as e:
@@ -387,21 +391,9 @@ class NotionService:
             today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             days_until_due = (deadline - today).days
             
-            # 期限切れまたは1日以内
-            if days_until_due <= 1:
-                return "高"
-            # 3日以内
-            elif days_until_due <= 3:
-                return "高"
-            # 7日以内
-            elif days_until_due <= 7:
-                return "高"
-            # 14日以内
-            elif days_until_due <= 14:
-                return "中"
-            # それ以上
-            else:
-                return "低"
+            # Task.get_priority_from_daysを使用して優先度を取得
+            priority_info = Task.get_priority_from_days(days_until_due)
+            return priority_info["priority"]
                 
         except ValueError:
             return task.priority or "中"
