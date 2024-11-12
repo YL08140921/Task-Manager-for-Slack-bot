@@ -265,9 +265,9 @@ class SlackService:
         
         if args:
             # フィルター条件の解析
-            if args in ["未着手", "進行中", "完了"]:
+            if args in [Task.STATUS_NOT_STARTED, Task.STATUS_IN_PROGRESS, Task.STATUS_COMPLETED]:
                 filters["status"] = args
-            elif args in ["数学", "統計学", "機械学習", "理論", "プログラミング"]:
+            elif args in Task.VALID_CATEGORIES:
                 filters["category"] = args
                 
         # タスク一覧の取得
@@ -349,7 +349,7 @@ class SlackService:
         else:
             say(f"❌ {result['message']}")
 
-    def _handle_overdue(self, say):
+    def _handle_overdue(self, args, say):
         """期限切れタスクの処理"""
         filters = {"overdue": True}
         result = self.notion_service.list_tasks(filters)
@@ -359,13 +359,16 @@ class SlackService:
         else:
             say(f"❌ {result['message']}")
 
-    def _show_help(self, say):
+    def _show_help(self, args, say):
         """
         ヘルプメッセージの表示
         
         Args:
             say: メッセージ送信関数
         """
+        # カテゴリリストを動的に生成
+        category_list = "・".join(Task.VALID_CATEGORIES)
+        
         help_text = [
             "🤖 *使用可能なコマンド:*",
             "",
@@ -377,7 +380,7 @@ class SlackService:
             "*2. タスクの一覧表示*",
             "```list [状態/分野]```",
             "- 状態: 未着手/進行中/完了",
-            "- 分野: 数学/統計学/機械学習/理論/プログラミング",
+            f"- 分野: {category_list}",
             "",
             "*3. タスクの更新*",
             "```update タスク名 状態```",
@@ -391,9 +394,9 @@ class SlackService:
             "1. `add レポート作成 | 期限:2024-03-20 | 優先度:高 | 分野:数学`",
             "2. `add 明日までに数学のレポートを提出`",
             "3. `list 未着手`",
-            "4. `update レポート作成 完了`"
-            "5. `こんにちは`（チャット）",
-            "6. `今日はいい天気ですね`（チャット）"
+            "4. `update レポート作成 完了`",
+            "5. `こんにちは`（授業指定チャット）",
+            "6. `今日はいい天気ですね`（授業指定チャット）"
         ]
         
         say("\n".join(help_text))

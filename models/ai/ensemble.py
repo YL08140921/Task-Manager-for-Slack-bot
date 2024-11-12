@@ -60,12 +60,19 @@ class EnsembleModel:
         try:
             # MeCabで形態素解析を実行
             words = self._tokenize_with_pos(text)
+
+            # 除外する日付関連の表現
+            date_patterns = [
+                "月曜", "火曜", "水曜", "木曜", "金曜", "土曜", "日曜",
+                "来週", "今週", "明日", "明後日", "今月", "来月",
+                "まで", "までに", "日", "月", "年"
+            ]
             
             # 不要な表現を除去
             filtered_words = []
             for word, pos in words:
-                # 時間表現を除去
-                if word in ['今日', '明日', '明後日', '今週', '来週', '今月']:
+                # 日付関連の表現をスキップ
+                if any(pattern in word for pattern in date_patterns):
                     continue
                 # 助詞・助動詞を除去
                 if pos.startswith(('助詞', '助動詞')):
@@ -74,7 +81,7 @@ class EnsembleModel:
                 if pos.startswith('動詞') and word in ['する', 'やる', '行う', '実施']:
                     continue
                 # その他の不要語を除去
-                if word in ['必要', '予定', 'こと', 'もの', 'ため']:
+                if word in ['必要', '予定', 'こと', 'もの', 'ため', 'それ', 'そう', 'それぞれ', '提出']:
                     continue
                     
                 filtered_words.append((word, pos))
