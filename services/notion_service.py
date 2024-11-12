@@ -104,11 +104,11 @@ class NotionService:
                         }
                     })
                     
-                if "category" in filters:
+                if "categories" in filters:
                     filter_conditions.append({
                         "property": "分野",
-                        "select": {
-                            "equals": filters["category"]
+                        "multi_select": {
+                            "contains": filters["categories"]
                         }
                     })
                     
