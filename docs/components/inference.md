@@ -58,7 +58,7 @@ class AIInference:
             raise
 ```
 
-AIInferenceクラスは、EnsembleModelを使用してテキスト解析を行うためのインターフェースを提供する。以下の特徴を持つ：
+AIInferenceクラスは、EnsembleModelを使用してテキスト解析を行うためのインターフェースを提供する。以下の特徴を持つ
 
 1. **初期化パラメータ**
    ```python
@@ -101,8 +101,8 @@ AIInferenceクラスは、EnsembleModelを使用してテキスト解析を行�
 
 3. **主要コンポーネント**
    - `self.ensemble`: テキスト解析の実行エンジン
-   - `self.model_paths`: モデルファイルのパス情報
-   - `self.weights`: モデルの重み設定（オプション）
+   - `self.model_paths`: 学習済みモデルのファイルパス
+   - `self.weights`: モデルの重み設定
 
 4. **エラーハンドリング**
    ```python
