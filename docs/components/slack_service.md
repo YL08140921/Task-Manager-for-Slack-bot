@@ -311,7 +311,7 @@ def _handle_list(self, args: str, say):
     
     Args:
         args: フィルター条件
-        say: メッセージ送信関数
+        say: メッセージ���信関数
     """
     # フィルター条件の解析
     filters = {}
@@ -595,20 +595,23 @@ def _show_help(self, args: str, say):
 graph TD
     A[Slackメッセージ] --> B[メンション判定]
     B --> C[コマンド解析]
-    C --> D[コマンド実行]
-    D --> E[結果通知]
+    C --> D[コマンド処理]
     
     subgraph "コマンド処理"
         D --> D1[タスク追加]
         D --> D2[一覧表示]
         D --> D3[タスク更新]
         D --> D4[タスク検索]
+        
+        D1 --> E1[追加結果通知]
+        D2 --> E2[一覧表示結果]
+        D3 --> E3[更新結果通知]
+        D4 --> E4[検索結果通知]
     end
     
-    subgraph "結果処理"
-        E --> E1[成功通知]
-        E --> E2[エラー通知]
-        E --> E3[ヘルプ表示]
+    subgraph "エラー処理"
+        D --> F1[エラー通知]
+        D --> F2[ヘルプ表示]
     end
 ```
 
