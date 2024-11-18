@@ -454,32 +454,6 @@ except Exception as e:
 
 ## コンポーネント間の連携
 
-### システム全体の構成
-```mermaid
-graph TD
-    A[AIInference] --> B[EnsembleModel]
-    A --> C[Validator]
-    
-    B --> D[Word2Vec]
-    B --> E[FastText]
-    B --> F[LASER]
-    
-    C --> G[RuleBasedAnalyzer]
-    C --> H[TaskModel]
-```
-
-AIInferenceは以下のコンポーネントと連携して動作する。
-
-1. **EnsembleModel**
-   - 複数の言語モデルを統合
-   - テキストの意味解析を実行
-   - 信頼度付きの結果を提供
-
-2. **Validator**
-   - 解析結果の検証を担当
-   - ルールベースとの整合性確認
-   - 信頼度の評価
-
 ### テキスト解析の処理フロー
 ```mermaid
 sequenceDiagram

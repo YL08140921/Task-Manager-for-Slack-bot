@@ -667,37 +667,6 @@ def handle_mention(event, say):
 
 ## コンポーネント間の連携
 
-### システム全体の構成
-```mermaid
-graph TD
-    A[SlackService] --> B[AIInference]
-    A --> C[NotionService]
-    A --> D[TextParser]
-    
-    B --> E[EnsembleModel]
-    B --> F[Validator]
-    
-    C --> G[Notion API]
-    C --> H[TaskModel]
-```
-
-SlackServiceは以下のコンポーネントと連携して動作する。
-
-1. **AIInference**
-   - 自然言語入力の解析を担当
-   - タスク情報の抽出を行う
-   - 信頼度付きの解析結果を提供
-
-2. **NotionService**
-   - タスクの永続化を担当
-   - データベース操作を行う
-   - タスクの状態管理を提供
-
-3. **TextParser**
-   - コマンドの構文解析を担当
-   - タスク情報の構造化を行う
-   - 入力の正規化を提供
-
 ### タスク追加の処理フロー
 ```mermaid
 sequenceDiagram
