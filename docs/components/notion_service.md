@@ -529,7 +529,7 @@ print(result["message"])  # "タスク一覧の取得に失敗しました: Inva
 ## コンポーネント間の連携
 
 ### 1. SlackServiceとの連携
-SlackServiceとの連携フローについては、[SlackService - コンポーネント間の連携](components/slack_service.md#コンポーネント間の連携)を参照。
+SlackServiceとの連携フローについては、[SlackService コンポーネント間の連携](components/slack_service.md#コンポーネント間の連携)を参照。
 
 ### 2. AIInferenceとの連携
 NotionServiceは、AIInferenceが生成したタスク情報を永続化する。
