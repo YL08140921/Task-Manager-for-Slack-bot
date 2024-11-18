@@ -6,7 +6,6 @@
 3. [実装詳細](#実装詳細)
 4. [処理フロー](#処理フロー)
 5. [使用例](#使用例)
-6. [コンポーネント間の連携](#コンポーネント間の連携)
 
 ## 概要
 
@@ -449,41 +448,3 @@ try:
 except Exception as e:
     print(f"解析エラー: {str(e)}")
 ```
-
-このように、AIInferenceはテキスト解析機能を提供しながら、エラーハンドリングとログ機能を統合し、安定した解析結果を提供する。各ステップでの中間結果も確認可能で、デバッグや性能改善に役立つ。
-
-## コンポーネント間の連携
-
-### テキスト解析の処理フロー
-```mermaid
-sequenceDiagram
-    participant User as 呼び出し元
-    participant AI as AIInference
-    participant EM as EnsembleModel
-    participant Val as Validator
-    
-    User->>AI: analyze_text()
-    AI->>EM: テキスト解析
-    EM-->>AI: 解析結果
-    AI->>Val: 結果検証
-    Val-->>AI: 検証済み結果
-    AI-->>User: 最終結果
-```
-
-テキスト解析時の処理の流れ
-
-1. **解析要求**
-   - 呼び出し元からのテキスト入力
-   - 解析オプションの指定
-
-2. **意味解析**
-   - EnsembleModelによる解析
-   - 複数モデルの結果統合
-
-3. **結果検証**
-   - Validatorによる検証
-   - 信頼度の評価
-
-4. **結果返却**
-   - 検証済み結果の返却
-   - エラー時の適切な処理

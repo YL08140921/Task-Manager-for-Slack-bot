@@ -6,7 +6,6 @@
 3. [実装詳細](#実装詳細)
 4. [処理フロー](#処理フロー)
 5. [使用例](#使用例)
-6. [コンポーネント間の連携](#コンポーネント間の連携)
 
 ## 概要
 
@@ -525,54 +524,3 @@ print(result["message"])  # "タスク'存在しないタスク'が見つかり�
 result = notion_service.list_tasks({"invalid": "filter"})
 print(result["message"])  # "タスク一覧の取得に失敗しました: Invalid filter"
 ```
-
-## コンポーネント間の連携
-
-### 1. SlackServiceとの連携
-SlackServiceとの連携フローについては、[SlackService コンポーネント間の連携](slack_service.md#コンポーネント間の連携)を参照。
-
-### 2. AIInferenceとの連携
-NotionServiceは、AIInferenceが生成したタスク情報を永続化する。
-
-1. **AI解析結果の保存**
-   ```python
-   # AIInferenceでの解析
-   ai_result = ai_inference.analyze_text(
-       "明日までに機械学習のレポートを提出する必要がある"
-   )
-   
-   # NotionServiceでの保存
-   notion_service.add_task({
-       "title": ai_result["title"],
-       "due_date": ai_result["deadline"],
-       "priority": ai_result["priority"],
-       "categories": ai_result["categories"]
-   })
-   ```
-
-### 3. TaskModelとの連携
-NotionServiceは、TaskModelのインスタンスを生成・管理し、Notionとの同期を行う。
-
-1. **データの相互変換**
-   ```python
-   # NotionレスポンスからTaskオブジェクトへの変換
-   task = notion_service._response_to_task(notion_response)
-   
-   # TaskオブジェクトからNotionプロパティへの変換
-   properties = notion_service._create_properties(task.__dict__)
-   ```
-
-### 4. データの整合性管理
-各コンポーネント間でのデータの一貫性を保証する。
-
-1. **ステータスの同期**
-   - Slack上での更新をNotionに反映
-   - Notion上での変更をSlackに通知
-
-2. **カテゴリの統一**
-   - TaskModelの定義に基づくカテゴリの検証
-   - AIInferenceの推定結果の正規化
-
-3. **優先度の調整**
-   - 期限に基づく動的な優先度更新
-   - AI推定結果との整合性確保

@@ -6,7 +6,6 @@
 3. [実装詳細](#実装詳細)
 4. [処理フロー](#処理フロー)
 5. [使用例](#使用例)
-6. [コンポーネント間の連携](#コンポーネント間の連携)
 
 ## 概要
 
@@ -664,79 +663,3 @@ def handle_mention(event, say):
     slack_service._process_command(text, say)
     # 出力: "タスクの情報を入力してくだい。"
 ```
-
-## コンポーネント間の連携
-
-### タスク追加の処理フロー
-```mermaid
-sequenceDiagram
-    participant User as ユーザー
-    participant Slack
-    participant SS as SlackService
-    participant AI as AIInference
-    participant NS as NotionService
-    
-    User->>Slack: タスク追加コマンド
-    Slack->>SS: イベント通知
-    SS->>AI: テキスト解析
-    AI-->>SS: 解析結果
-    SS->>NS: タスク保存
-    NS-->>SS: 保存結果
-    SS-->>Slack: 完了通知
-    Slack-->>User: 結果表示
-```
-
-タスク追加時の処理の流れ
-
-1. **ユーザー入力**
-   - Slackでタスク追加コマンドを入力
-   - 自然言語または構造化形式で指定
-
-2. **テキスト解析**
-   - AIInferenceによる自然言語解析
-   - タスク情報の抽出と構造化
-
-3. **タスク保存**
-   - NotionServiceによるデータベース保存
-   - タスク情報の永続化
-
-4. **結果通知**
-   - 処理結果のユーザーへの通知
-   - エラー発生時の適切なメッセージ表示
-
-### タスク一覧表示の処理フロー
-```mermaid
-sequenceDiagram
-    participant User as ユーザー
-    participant Slack
-    participant SS as SlackService
-    participant NS as NotionService
-    participant DB as NotionDB
-    
-    User->>Slack: 一覧表示コマンド
-    Slack->>SS: イベント通知
-    SS->>NS: タスク一覧要求
-    NS->>DB: データベース検索
-    DB-->>NS: タスク一覧
-    NS-->>SS: 整形済み一覧
-    SS-->>Slack: タスク一覧表示
-    Slack-->>User: 結果表示
-```
-
-タスク一覧表示時の処理の流れ
-
-1. **コマンド受付**
-   - 一覧表示コマンドの受信
-   - フィルター条件の解析
-
-2. **データ取得**
-   - NotionServiceによるデータベース検索
-   - フィルター適用とソート
-
-3. **データ整形**
-   - タスク情報の整形
-   - 表示用フォーマットの適用
-
-4. **結果表示**
-   - 整形されたタスク一覧の表示
-   - エラー時の適切なメッセージ表示
