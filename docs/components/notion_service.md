@@ -61,6 +61,7 @@ class NotionService:
         """
         self.client = Client(auth=api_key)
         self.database_id = database_id
+```
 
 ### 主要メソッド
 
