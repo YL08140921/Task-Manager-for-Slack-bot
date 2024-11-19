@@ -68,9 +68,9 @@ class Task:
 
         # AIモデルの重み付け
         "MODEL_WEIGHTS": {
-            "LASER": 0.5,    # 多言語対応と文脈理解が強い
-            "WORD2VEC": 0.3, # 基本的な単語の意味理解
-            "FASTTEXT": 0.2  # 部分文字列の処理が得意
+            "LASER": 0.5,    
+            "WORD2VEC": 0.3, 
+            "FASTTEXT": 0.2
         }
     }
 

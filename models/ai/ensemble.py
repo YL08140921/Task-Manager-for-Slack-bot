@@ -225,9 +225,9 @@ class EnsembleModel:
             any(keyword in text for keyword in Task.CATEGORY_KEYWORDS[category])
         ]
 
-        # 明示的なカテゴリがある場合はそれを使用
+        # 明示的なカテゴリがある場合は最大3つまでそれを使用
         if explicit_categories:
-            final_categories = explicit_categories[:3]  # 最大3つまで
+            final_categories = explicit_categories[:3]
         else:
             # 明示的なカテゴリがない場合は類似度による推定を使用
             threshold = Task.CONFIDENCE["THRESHOLD"]
